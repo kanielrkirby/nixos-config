@@ -288,13 +288,13 @@
           /etc/nixos/hardware-configuration.nix
           baseConfig
           { nixpkgs.config.allowUnfree = true; }
-          {
+          ({ lib, ... }: {
             # Override bootloader for VM
             boot.loader.systemd-boot.enable = lib.mkForce false;
             boot.loader.efi.canTouchEfiVariables = lib.mkForce false;
             boot.loader.grub.enable = true;
             boot.loader.grub.device = "/dev/vda";
-          }
+          })
         ];
       };
       
