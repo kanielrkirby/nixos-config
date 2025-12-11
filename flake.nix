@@ -277,6 +277,7 @@
         modules = [
           /etc/nixos/hardware-configuration.nix
           baseConfig
+          { nixpkgs.config.allowUnfree = true; }
         ];
       };
       
@@ -286,9 +287,8 @@
         modules = [
           "${nixpkgs}/nixos/modules/installer/cd-dvd/installation-cd-minimal.nix"
           baseConfig
+          { nixpkgs.config.allowUnfree = true; }
           ({ config, pkgs, lib, ... }: {
-            # Allow unfree packages in ISO
-            nixpkgs.config.allowUnfree = true;
             
             # Override some settings for ISO
             isoImage.squashfsCompression = "zstd";
