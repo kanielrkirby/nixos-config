@@ -98,8 +98,8 @@
             nixpkgs.config.allowUnfree = true;
 
             # Bootloader
-            boot.loader.grub.enable = true;
-            boot.loader.grub.device = "/dev/vda";
+            boot.loader.systemd-boot.enable = true;
+            boot.loader.efi.canTouchEfiVariables = true;
 
             # Networking
             networking.hostName = "nixos";
@@ -271,13 +271,30 @@
       };
       
     in {
-      # Main system configuration
+      # Main system configuration (EFI)
       nixosConfigurations.nixos = nixpkgs.lib.nixosSystem {
         inherit system;
         modules = [
           /etc/nixos/hardware-configuration.nix
           baseConfig
           { nixpkgs.config.allowUnfree = true; }
+        ];
+      };
+      
+      # VM configuration (GRUB)
+      nixosConfigurations.nixos-vm = nixpkgs.lib.nixosSystem {
+        inherit system;
+        modules = [
+          /etc/nixos/hardware-configuration.nix
+          baseConfig
+          { nixpkgs.config.allowUnfree = true; }
+          {
+            # Override bootloader for VM
+            boot.loader.systemd-boot.enable = lib.mkForce false;
+            boot.loader.efi.canTouchEfiVariables = lib.mkForce false;
+            boot.loader.grub.enable = true;
+            boot.loader.grub.device = "/dev/vda";
+          }
         ];
       };
       
