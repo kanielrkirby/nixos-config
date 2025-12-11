@@ -1,0 +1,254 @@
+{
+  description = "NixOS configuration for mx";
+
+  inputs = {
+    nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
+    
+    # Your dotfiles repo (stow-managed)
+    dotfiles = {
+      url = "github:kanielrkirby/dotfiles";
+      flake = false;
+    };
+    
+    # Your suckless software repo (with subdirs for each program)
+    suckless = {
+      url = "github:kanielrkirby/suckless";  # One repo with dwm/, dwl/, st/, etc subdirs
+      flake = false;
+    };
+  };
+
+  outputs = { self, nixpkgs, dotfiles, suckless, ... }:
+    let
+      system = "x86_64-linux";
+      pkgs = import nixpkgs {
+        inherit system;
+        config.allowUnfree = true;
+      };
+      
+      # Build custom suckless software from subdirs of the suckless repo
+      dwm = pkgs.dwm.overrideAttrs (oldAttrs: {
+        src = "${suckless}/dwm";
+      });
+      
+      st = pkgs.st.overrideAttrs (oldAttrs: {
+        src = "${suckless}/st";
+      });
+      
+      dwl = pkgs.dwl.overrideAttrs (oldAttrs: {
+        src = "${suckless}/dwl";
+      });
+      
+      dwmblocks = pkgs.stdenv.mkDerivation {
+        pname = "dwmblocks";
+        version = "custom";
+        src = "${suckless}/dwmblocks";
+        buildInputs = with pkgs; [ xorg.libX11 ];
+        makeFlags = [ "PREFIX=$(out)" ];
+      };
+      
+      someblocks = pkgs.stdenv.mkDerivation {
+        pname = "someblocks";
+        version = "custom";
+        src = "${suckless}/someblocks";
+        buildInputs = with pkgs; [ wayland wayland-protocols ];
+        makeFlags = [ "PREFIX=$(out)" ];
+      };
+      
+      # Custom menu script from dotfiles repo
+      menu-custom = pkgs.writeShellScriptBin "menu_custom" (builtins.readFile "${dotfiles}/.local/bin/menu_custom");
+      
+    in {
+      nixosConfigurations.nixos = nixpkgs.lib.nixosSystem {
+        inherit system;
+        modules = [
+          # Hardware config (to be generated)
+          ./hardware-configuration.nix
+          
+          # Main configuration inline
+          ({ config, pkgs, lib, ... }: {
+            # Bootloader
+            boot.loader.systemd-boot.enable = true;
+            boot.loader.efi.canTouchEfiVariables = true;
+
+            # Networking
+            networking.hostName = "nixos";
+            networking.networkmanager.enable = true;
+
+            # Time zone
+            time.timeZone = "America/New_York";
+
+            # Locale
+            i18n.defaultLocale = "en_US.UTF-8";
+
+            # X11 Configuration
+            services.xserver = {
+              enable = true;
+              
+              # Use custom dwm
+              windowManager.dwm = {
+                enable = true;
+                package = dwm;
+              };
+              
+              # Display manager
+              displayManager.startx.enable = true;
+              
+              # Keyboard
+              xkb.layout = "us";
+            };
+
+            # Wayland compositors
+            programs.hyprland.enable = false;  # Set to true if you want Hyprland
+            
+            # Custom Wayland session for dwl
+            environment.etc."wayland-sessions/dwl.desktop".text = ''
+              [Desktop Entry]
+              Name=dwl
+              Comment=dwl - dwm for Wayland
+              Exec=${dwl}/bin/dwl
+              Type=Application
+            '';
+
+            # Sound
+            security.rtkit.enable = true;
+            services.pipewire = {
+              enable = true;
+              alsa.enable = true;
+              alsa.support32Bit = true;
+              pulse.enable = true;
+              wireplumber.enable = true;
+            };
+
+            # Docker
+            virtualisation.docker.enable = true;
+
+            # Libvirt
+            virtualisation.libvirtd.enable = true;
+
+            # Mullvad VPN
+            services.mullvad-vpn.enable = true;
+
+            # TLP for power management
+            services.tlp.enable = true;
+
+            # Users
+            users.users.mx = {
+              isNormalUser = true;
+              description = "mx";
+              extraGroups = [ "networkmanager" "wheel" "docker" "libvirtd" ];
+              initialPassword = "changeme";
+            };
+
+            # System packages
+            environment.systemPackages = with pkgs; [
+              # Suckless software (custom builds)
+              dwm
+              dwl
+              st
+              dwmblocks
+              someblocks
+              menu-custom
+              
+              # Menu and tools
+              dmenu
+              wmenu
+              foot
+              dwlb
+              
+              # Browsers
+              qutebrowser
+              vivaldi
+              firefox
+              
+              # Communication
+              signal-desktop
+              
+              # Development
+              git
+              git-lfs
+              helix
+              vim
+              gh
+              clang
+              docker
+              
+              # Terminal tools
+              yazi
+              tmux
+              bash-completion
+              btop
+              tealdeer
+              trash-cli
+              zoxide
+              fzf
+              eza
+              httpie
+              
+              # System utilities
+              brightnessctl
+              wireplumber  # for wpctl
+              mullvad-vpn
+              stow  # For dotfiles management
+              
+              # File manager
+              xfce.thunar
+              
+              # Media
+              mpv
+              
+              # Notifications
+              dunst  # X11
+              # tiramisu  # Wayland alternative
+              
+              # SSH
+              openssh
+              
+              # Uutils coreutils replacements
+              uutils-coreutils-noprefix
+              
+              # LF file manager
+              lf
+              
+              # sxhkd (commented out for now)
+              # sxhkd
+            ];
+
+            # Deploy dotfiles from git repo using activation script
+            system.activationScripts.dotfiles = ''
+              # Symlink dotfiles repo to user home for stow
+              if [ ! -L /home/mx/.dotfiles ]; then
+                ln -sfn ${dotfiles} /home/mx/.dotfiles
+                chown -h mx:users /home/mx/.dotfiles
+              fi
+              
+              # Run stow as user
+              su - mx -c "cd /home/mx/.dotfiles && ${pkgs.stow}/bin/stow -t /home/mx --restow ."
+            '';
+
+            # Font configuration
+            fonts.packages = with pkgs; [
+              dejavu_fonts
+              noto-fonts
+              noto-fonts-emoji
+            ];
+
+            # Enable flakes
+            nix.settings.experimental-features = [ "nix-command" "flakes" ];
+
+            # System state version
+            system.stateVersion = "24.11";
+          })
+        ];
+      };
+      
+      # Development shell for testing
+      devShells.${system}.default = pkgs.mkShell {
+        buildInputs = with pkgs; [
+          git
+          stow
+          gnumake
+          gcc
+        ];
+      };
+    };
+}
