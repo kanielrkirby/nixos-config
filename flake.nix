@@ -27,45 +27,73 @@
       
       # Build custom suckless software from subdirs of the suckless repo
       dwm = pkgs.dwm.overrideAttrs (oldAttrs: {
-        src = "${suckless}/dwm";
+        src = suckless;
+        postUnpack = ''
+          sourceRoot="$sourceRoot/dwm"
+        '';
       });
       
       st = pkgs.st.overrideAttrs (oldAttrs: {
-        src = "${suckless}/st";
+        src = suckless;
+        postUnpack = ''
+          sourceRoot="$sourceRoot/st"
+        '';
       });
       
       dwl = pkgs.dwl.overrideAttrs (oldAttrs: {
-        src = "${suckless}/dwl";
+        src = suckless;
+        postUnpack = ''
+          sourceRoot="$sourceRoot/dwl"
+        '';
       });
       
       dwmblocks = pkgs.stdenv.mkDerivation {
         pname = "dwmblocks";
         version = "custom";
-        src = "${suckless}/dwmblocks";
+        src = suckless;
+        postUnpack = ''
+          sourceRoot="$sourceRoot/dwmblocks"
+        '';
         buildInputs = with pkgs; [ xorg.libX11 ];
         makeFlags = [ "PREFIX=$(out)" ];
+        preBuild = ''
+          # Remove dangling symlink if it exists
+          rm -f blocks.h
+        '';
       };
       
-      someblocks = pkgs.stdenv.mkDerivation {
-        pname = "someblocks";
+      dwlblocks = pkgs.stdenv.mkDerivation {
+        pname = "dwlblocks";
         version = "custom";
-        src = "${suckless}/someblocks";
+        src = suckless;
+        postUnpack = ''
+          sourceRoot="$sourceRoot/dwlblocks"
+        '';
         buildInputs = with pkgs; [ wayland wayland-protocols ];
+        makeFlags = [ "PREFIX=$(out)" ];
+        preBuild = ''
+          # Remove dangling symlink if it exists
+          rm -f blocks.h
+        '';
+      };
+      
+      dwlb = pkgs.stdenv.mkDerivation {
+        pname = "dwlb";
+        version = "custom";
+        src = suckless;
+        postUnpack = ''
+          sourceRoot="$sourceRoot/dwlb"
+        '';
+        nativeBuildInputs = with pkgs; [ pkg-config wayland-scanner ];
+        buildInputs = with pkgs; [ wayland wayland-protocols pixman fcft ];
         makeFlags = [ "PREFIX=$(out)" ];
       };
       
       # Custom menu script from dotfiles repo
       menu-custom = pkgs.writeShellScriptBin "menu_custom" (builtins.readFile "${dotfiles}/.local/bin/menu_custom");
       
-    in {
-      nixosConfigurations.nixos = nixpkgs.lib.nixosSystem {
-        inherit system;
-        modules = [
-          # Hardware config (to be generated)
-          ./hardware-configuration.nix
-          
-          # Main configuration inline
-          ({ config, pkgs, lib, ... }: {
+      # Shared configuration module
+      baseConfig = { config, pkgs, lib, ... }: {
             # Bootloader
             boot.loader.systemd-boot.enable = true;
             boot.loader.efi.canTouchEfiVariables = true;
@@ -146,14 +174,14 @@
               dwl
               st
               dwmblocks
-              someblocks
+              dwlblocks
+              dwlb
               menu-custom
               
               # Menu and tools
               dmenu
               wmenu
               foot
-              dwlb
               
               # Browsers
               qutebrowser
@@ -229,7 +257,7 @@
             fonts.packages = with pkgs; [
               dejavu_fonts
               noto-fonts
-              noto-fonts-emoji
+              noto-fonts-color-emoji
             ];
 
             # Enable flakes
@@ -237,6 +265,37 @@
 
             # System state version
             system.stateVersion = "24.11";
+      };
+      
+    in {
+      # Main system configuration
+      nixosConfigurations.nixos = nixpkgs.lib.nixosSystem {
+        inherit system;
+        modules = [
+          /etc/nixos/hardware-configuration.nix
+          baseConfig
+        ];
+      };
+      
+      # ISO installer configuration
+      nixosConfigurations.nixos-iso = nixpkgs.lib.nixosSystem {
+        inherit system;
+        modules = [
+          "${nixpkgs}/nixos/modules/installer/cd-dvd/installation-cd-minimal.nix"
+          baseConfig
+          ({ config, pkgs, lib, ... }: {
+            # Allow unfree packages in ISO
+            nixpkgs.config.allowUnfree = true;
+            
+            # Override some settings for ISO
+            isoImage.squashfsCompression = "zstd";
+            
+            # Don't require hardware-configuration.nix for ISO
+            boot.loader.systemd-boot.enable = lib.mkForce false;
+            boot.loader.efi.canTouchEfiVariables = lib.mkForce false;
+            
+            # Disable activation scripts that depend on /home/mx existing
+            system.activationScripts.dotfiles = lib.mkForce "";
           })
         ];
       };
