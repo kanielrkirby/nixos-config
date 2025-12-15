@@ -1,13 +1,5 @@
 {
   description = "NixOS configuration for mx";
-      nixConfig = {
-        users.users.root.name = "root";
-        users.users.root.email = "nixos@localhost";
-        git = {
-          userEmail = "piratey7007+1923@runbox.com";
-          userName = "kanielrkirby";
-        };
-      };
 
   inputs = {
     nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
@@ -23,8 +15,6 @@
       url = "github:kanielrkirby/suckless";  # One repo with dwm/, dwl/, st/, etc subdirs
       flake = false;
     };
-
-  outputs = { self, nixpkgs, dotfiles, suckless, ... }:
   };
 
   outputs = { self, nixpkgs, dotfiles, suckless, ... }:
@@ -239,6 +229,16 @@
               extraGroups = [ "networkmanager" "wheel" "docker" "libvirtd" ];
               initialPassword = "changeme";
             };
+            programs.git = {
+              enable = true;
+              config = {
+                init = {
+                  defaultBranch = "main";
+                };
+                user.email = "piratey7007+1923@runbox.com";
+                user.name = "kanielrkirby";
+              };
+            };
 
             # System packages
             environment.systemPackages = with pkgs; [
@@ -266,7 +266,6 @@
               signal-desktop
               
               # Development
-              git
               git-lfs
               helix
               vim
