@@ -44,11 +44,15 @@
         postUnpack = ''
           sourceRoot="$sourceRoot/st"
         '';
-        postFixup = ''
-          patchelf --set-interpreter ${pkgs.glibc}/lib/ld-linux-x86-64.so.2 \
-                   --set-rpath ${pkgs.lib.makeLibraryPath [pkgs.xorg.libX11 pkgs.xorg.libXft pkgs.fontconfig pkgs.freetype]} \
-                   $out/bin/st
-        '';
+        makeFlags = (oldAttrs.makeFlags) ++ [
+          "CC=${pkgs.stdenv.cc.targetPrefix}cc"
+          "LD=${pkgs.stdenv.cc.targetPrefix}cc"
+        ];
+        # postFixup = ''
+        #   patchelf --set-interpreter ${pkgs.glibc}/lib/ld-linux-x86-64.so.2 \
+        #            --set-rpath ${pkgs.lib.makeLibraryPath [pkgs.xorg.libX11 pkgs.xorg.libXft pkgs.fontconfig pkgs.freetype]} \
+        #            $out/bin/st
+        # '';
       });
       
       dwl = pkgs.dwl.overrideAttrs (oldAttrs: {
