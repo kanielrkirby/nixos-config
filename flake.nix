@@ -314,7 +314,7 @@
               fi
               
               # Run stow as user
-              su - mx -c "cd /home/mx/.dotfiles && ${pkgs.stow}/bin/stow -t /home/mx --restow ."
+              ${pkgs.su}/bin/su - mx -c "cd /home/mx/.dotfiles && ${pkgs.stow}/bin/stow -t /home/mx --restow ."
             '';
 
             # Font configuration
