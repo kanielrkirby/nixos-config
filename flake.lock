@@ -1,0 +1,61 @@
+{
+  "nodes": {
+    "dotfiles": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1765685380,
+        "narHash": "sha256-1jKkoAca3ICIQWevfcv1Vo13AFjcwbxnYtM3g0uuO0s=",
+        "owner": "kanielrkirby",
+        "repo": "dotfiles",
+        "rev": "fc67291558ffecea9842bf79207467df964e4c26",
+        "type": "github"
+      },
+      "original": {
+        "owner": "kanielrkirby",
+        "repo": "dotfiles",
+        "type": "github"
+      }
+    },
+    "nixpkgs": {
+      "locked": {
+        "lastModified": 1765472234,
+        "narHash": "sha256-9VvC20PJPsleGMewwcWYKGzDIyjckEz8uWmT0vCDYK0=",
+        "owner": "nixos",
+        "repo": "nixpkgs",
+        "rev": "2fbfb1d73d239d2402a8fe03963e37aab15abe8b",
+        "type": "github"
+      },
+      "original": {
+        "owner": "nixos",
+        "ref": "nixos-unstable",
+        "repo": "nixpkgs",
+        "type": "github"
+      }
+    },
+    "root": {
+      "inputs": {
+        "dotfiles": "dotfiles",
+        "nixpkgs": "nixpkgs",
+        "suckless": "suckless"
+      }
+    },
+    "suckless": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1765657251,
+        "narHash": "sha256-MbKMyQhy4rOmECT8pH+jEgk8BG4eyjeCNdXhUo4peTw=",
+        "owner": "kanielrkirby",
+        "repo": "suckless",
+        "rev": "ee0dfbd61a4b3e417118916ef2a18c40bd8aedae",
+        "type": "github"
+      },
+      "original": {
+        "owner": "kanielrkirby",
+        "repo": "suckless",
+        "type": "github"
+      }
+    }
+  },
+  "root": "root",
+  "version": 7
+}

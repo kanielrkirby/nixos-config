@@ -1,5 +1,13 @@
 {
   description = "NixOS configuration for mx";
+      nixConfig = {
+        users.users.root.name = "root";
+        users.users.root.email = "nixos@localhost";
+        git = {
+          userEmail = "piratey7007+1923@runbox.com";
+          userName = "kanielrkirby";
+        };
+      };
 
   inputs = {
     nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
@@ -9,12 +17,14 @@
       url = "github:kanielrkirby/dotfiles";
       flake = false;
     };
-    
+
     # Your suckless software repo (with subdirs for each program)
     suckless = {
       url = "github:kanielrkirby/suckless";  # One repo with dwm/, dwl/, st/, etc subdirs
       flake = false;
     };
+
+  outputs = { self, nixpkgs, dotfiles, suckless, ... }:
   };
 
   outputs = { self, nixpkgs, dotfiles, suckless, ... }:
