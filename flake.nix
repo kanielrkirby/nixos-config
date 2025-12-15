@@ -1,0 +1,372 @@
+{
+  description = "NixOS configuration for mx";
+
+  inputs = {
+    nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
+
+    dotfiles = {
+      url = "git+https://github.com/kanielrkirby/dotfiles?submodules=1&rev=ccac60a692a3297e3a3dca4a9149e324736bce57";
+      flake = false;
+    };
+  };
+
+  outputs =
+    {
+      self,
+      nixpkgs,
+      dotfiles,
+      ...
+    }:
+    let
+      system = "x86_64-linux";
+      pkgs = import nixpkgs {
+        inherit system;
+        config.allowUnfree = true;
+      };
+
+      _dwm = import ./derivations/dwm.nix { inherit pkgs dotfiles; };
+      _st = import ./derivations/st.nix { inherit pkgs dotfiles; };
+      _dwl = import ./derivations/dwl.nix { inherit pkgs dotfiles; };
+      _dwmblocks = import ./derivations/dwmblocks.nix { inherit pkgs dotfiles; };
+      _dwlblocks = import ./derivations/dwlblocks.nix { inherit pkgs dotfiles; };
+      _dwlb = import ./derivations/dwlb.nix { inherit pkgs dotfiles; };
+      _menu_custom = import ./derivations/menu_custom.nix { inherit pkgs; };
+      _entemenu = import ./derivations/entemenu.nix { inherit pkgs; };
+      _wifimenu = import ./derivations/wifimenu.nix { inherit pkgs; };
+
+      baseConfig =
+        {
+          config,
+          pkgs,
+          lib,
+          ...
+        }:
+        {
+          nixpkgs.config.allowUnfree = true;
+
+          nixpkgs.overlays = [
+            (final: prev: {
+              bitwarden-menu = prev.bitwarden-menu.overrideAttrs (oldAttrs: {
+                postPatch = (oldAttrs.postPatch or "") + ''
+                  # Fix KeyError when folderId is missing (only reads, not assignments)
+                  sed -i "s/\(\['\|, \)\(['a-z]*\)\['folderId'\]/\1\2.get('folderId')/g" bwm/bwview.py
+                '';
+              });
+              # Wrap ente-auth with software rendering for AMD Strix GPU compatibility
+              ente-auth = prev.ente-auth.overrideAttrs (oldAttrs: {
+                postFixup = (oldAttrs.postFixup or "") + ''
+                  wrapProgram $out/bin/enteauth \
+                    --set LIBGL_ALWAYS_SOFTWARE 1
+                '';
+              });
+            })
+          ];
+
+          boot.loader = {
+            systemd-boot.enable = true;
+            efi.canTouchEfiVariables = true;
+            grub.enable = false;
+          };
+
+          boot.zfs.extraPools = [ "zpool" ];
+
+          fileSystems = {
+            "/" = {
+              device = "zpool/root";
+              fsType = "zfs";
+            };
+            "/nix" = {
+              device = "zpool/nix";
+              fsType = "zfs";
+            };
+            "/var" = {
+              device = "zpool/var";
+              fsType = "zfs";
+            };
+            "/home" = {
+              device = "zpool/home";
+              fsType = "zfs";
+            };
+            "/boot" = {
+              device = "/dev/nvme0n1p1";
+              fsType = "vfat";
+            };
+          };
+
+          swapDevices = [
+            {
+              device = "/dev/nvme0n1p3";
+            }
+          ];
+
+          networking.hostName = "nixos";
+          networking.networkmanager.enable = true;
+          networking.networkmanager.dns = "dnsmasq";
+          networking.hostId = "1f80dbe2";
+
+          hardware.bluetooth.enable = true;
+
+          services.dnsmasq = {
+            enable = true;
+            settings = {
+              address = "/.local/127.0.0.1";
+              server = [
+                "8.8.8.8"
+                "1.1.1.1"
+              ];
+            };
+          };
+
+          # time.timeZone = "America/New_York";
+          time.timeZone = "America/Chicago";
+
+          i18n.defaultLocale = "en_US.UTF-8";
+
+          services.dbus.enable = true;
+
+          services.xserver = {
+            enable = true;
+            autorun = false;
+
+            displayManager.startx.enable = true;
+            displayManager.startx.generateScript = true;
+            displayManager.startx.extraCommands = /* bash */ ''
+              ${_dwmblocks}/bin/dwmblocks &
+              ${pkgs.picom}/bin/picom &
+            '';
+
+            windowManager.dwm = {
+              enable = true;
+              package = _dwm;
+            };
+
+            xkb.layout = "us";
+          };
+
+          programs.hyprland.enable = false;
+
+          environment.etc."wayland-sessions/dwl.desktop".text = ''
+            [Desktop Entry]
+            Name=dwl
+            Comment=dwl - dwm for Wayland
+            Exec=${_dwl}/bin/dwl
+            Type=Application
+          '';
+
+          hardware.graphics.enable = true;
+          hardware.graphics.enable32Bit = true;
+          hardware.graphics.extraPackages = with pkgs; [
+            vulkan-loader
+          ];
+
+          services.gnome.gnome-keyring.enable = true;
+          security.pam.services.login.enableGnomeKeyring = true;
+          security.pam.services.passwd.enableGnomeKeyring = true;
+          security.pam.services.greetd.enableGnomeKeyring = true;
+
+          programs.gnupg.agent = {
+            enable = true;
+            pinentryPackage = pkgs.pinentry-dmenu;
+          };
+
+          services.picom.enable = true;
+
+          security.rtkit.enable = true;
+          services.pipewire = {
+            enable = true;
+            alsa.enable = true;
+            alsa.support32Bit = true;
+            pulse.enable = true;
+            wireplumber.enable = true;
+          };
+
+          virtualisation.docker.enable = true;
+          virtualisation.docker.enableOnBoot = true;
+          virtualisation.docker.daemon.settings = {
+            experimental = true;
+            features = {
+              buildkit = true;
+            };
+          };
+
+          virtualisation.libvirtd.enable = true;
+
+          services.mullvad-vpn.enable = true;
+
+          services.tlp.enable = true;
+
+          users.users.mx = {
+            isNormalUser = true;
+            description = "mx";
+            extraGroups = [
+              "networkmanager"
+              "wheel"
+              "docker"
+              "libvirtd"
+            ];
+            initialPassword = "changeme";
+          };
+          programs.git = {
+            enable = true;
+            config = {
+              init = {
+                defaultBranch = "main";
+              };
+              user.email = "piratey7007+1923@runbox.com";
+              user.name = "kanielrkirby";
+            };
+          };
+
+          programs.bash = {
+            interactiveShellInit = /* bash */ ''
+              eval "$(fzf --bash)"
+            '';
+          };
+
+          environment.systemPackages = with pkgs; [
+            _dwm
+            _dwl
+            _st
+            _dwmblocks
+            _dwlblocks
+            _dwlb
+            _menu_custom
+            _wifimenu
+            _entemenu
+
+            dmenu
+            wmenu
+            bitwarden-menu
+            bitwarden-cli
+            networkmanager_dmenu
+            ente-auth
+            ente-cli
+            libsecret
+            pinentry-dmenu
+            gcr
+            qutebrowser
+            vivaldi
+            firefox
+            signal-desktop
+            git-lfs
+            helix
+            vim
+            gh
+            clang
+            lazysql
+
+            tmux
+            bash-completion
+            tealdeer
+            trash-cli
+            fzf
+            httpie
+            brightnessctl
+            wireplumber
+            mullvad-vpn
+            stow
+            xclip
+            wl-clipboard
+            maim
+            slop
+            flameshot
+            xfce.thunar
+            mpv
+            dunst
+            libnotify
+            openssh
+            uutils-coreutils-noprefix
+            uutils-findutils
+            uutils-diffutils
+            ffmpeg-full
+            yt-dlp
+
+            opencode
+          ];
+
+          # Deploy dotfiles from git repo using activation script
+          system.activationScripts.dotfiles = /* bash */ ''
+            ln -sfn ${dotfiles} /home/mx/.dotfiles
+            chown -h mx:users /home/mx/.dotfiles
+
+            ${pkgs.su}/bin/su - mx -c "cd /home/mx/.dotfiles && ${pkgs.stow}/bin/stow -t /home/mx --restow ."
+          '';
+
+          xdg.mime.defaultApplications = {
+            "text/html" = "org.qutebrowser.qutebrowser.desktop";
+            "x-scheme-handler/http" = "org.qutebrowser.qutebrowser.desktop";
+            "x-scheme-handler/https" = "org.qutebrowser.qutebrowser.desktop";
+          };
+
+          fonts.packages = with pkgs; [
+            dejavu_fonts
+            noto-fonts
+            noto-fonts-color-emoji
+          ];
+
+          nix.settings.experimental-features = [
+            "nix-command"
+            "flakes"
+          ];
+
+          system.stateVersion = "24.11";
+        };
+
+    in
+    {
+      # Main system configuration
+      nixosConfigurations.nixos = nixpkgs.lib.nixosSystem {
+        inherit system;
+        modules = [
+          ./hardware-configuration.nix
+          baseConfig
+          { nixpkgs.config.allowUnfree = true; }
+        ];
+      };
+
+      # VM configuration
+      nixosConfigurations.nixos-vm = nixpkgs.lib.nixosSystem {
+        inherit system;
+        modules = [
+          /etc/nixos/hardware-configuration.nix
+          baseConfig
+          { nixpkgs.config.allowUnfree = true; }
+          (
+            { lib, ... }:
+            {
+              boot.loader.systemd-boot.enable = lib.mkForce false;
+              boot.loader.efi.canTouchEfiVariables = lib.mkForce false;
+              boot.loader.grub.enable = true;
+              boot.loader.grub.device = "/dev/vda";
+            }
+          )
+        ];
+      };
+
+      # ISO installer configuration
+      nixosConfigurations.nixos-iso = nixpkgs.lib.nixosSystem {
+        inherit system;
+        modules = [
+          "${nixpkgs}/nixos/modules/installer/cd-dvd/installation-cd-minimal.nix"
+          baseConfig
+          { nixpkgs.config.allowUnfree = true; }
+          (
+            {
+              config,
+              pkgs,
+              lib,
+              ...
+            }:
+            {
+              isoImage.squashfsCompression = "zstd";
+
+              boot.loader.systemd-boot.enable = lib.mkForce false;
+              boot.loader.efi.canTouchEfiVariables = lib.mkForce false;
+
+              system.activationScripts.dotfiles = lib.mkForce "";
+            }
+          )
+        ];
+      };
+    };
+}

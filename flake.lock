@@ -1,0 +1,47 @@
+{
+  "nodes": {
+    "dotfiles": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1766081711,
+        "narHash": "sha256-I8tzIKbPCulZNn6v1ot8amyL3IUSxKU3IfkNTpTapBQ=",
+        "ref": "refs/heads/main",
+        "rev": "ccac60a692a3297e3a3dca4a9149e324736bce57",
+        "revCount": 14,
+        "submodules": true,
+        "type": "git",
+        "url": "https://github.com/kanielrkirby/dotfiles"
+      },
+      "original": {
+        "rev": "ccac60a692a3297e3a3dca4a9149e324736bce57",
+        "submodules": true,
+        "type": "git",
+        "url": "https://github.com/kanielrkirby/dotfiles"
+      }
+    },
+    "nixpkgs": {
+      "locked": {
+        "lastModified": 1765779637,
+        "narHash": "sha256-KJ2wa/BLSrTqDjbfyNx70ov/HdgNBCBBSQP3BIzKnv4=",
+        "owner": "nixos",
+        "repo": "nixpkgs",
+        "rev": "1306659b587dc277866c7b69eb97e5f07864d8c4",
+        "type": "github"
+      },
+      "original": {
+        "owner": "nixos",
+        "ref": "nixos-unstable",
+        "repo": "nixpkgs",
+        "type": "github"
+      }
+    },
+    "root": {
+      "inputs": {
+        "dotfiles": "dotfiles",
+        "nixpkgs": "nixpkgs"
+      }
+    }
+  },
+  "root": "root",
+  "version": 7
+}
