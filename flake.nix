@@ -25,104 +25,49 @@
         config.allowUnfree = true;
       };
       
-      _dwm = pkgs.dwm.overrideAttrs (oldAttrs: {
-        src = suckless;
-        postUnpack = ''
-          sourceRoot="$sourceRoot/dwm"
-        '';
-        postFixup = ''
-          patchelf --set-interpreter ${pkgs.glibc}/lib/ld-linux-x86-64.so.2 \
-                   --set-rpath ${pkgs.lib.makeLibraryPath [pkgs.xorg.libX11 pkgs.xorg.libXinerama pkgs.xorg.libXft pkgs.fontconfig pkgs.freetype]} \
-                   $out/bin/dwm
-        '';
-        # Force rebuild
-        version = "custom-2";
-      });
+      _dwm = import ./derivations/dwm.nix { inherit pkgs suckless; };
       
-      _st = pkgs.st.overrideAttrs (oldAttrs: {
-        src = suckless;
-        postUnpack = ''
-          sourceRoot="$sourceRoot/st"
-        '';
-        makeFlags = (oldAttrs.makeFlags) ++ [
-          "CC=${pkgs.stdenv.cc.targetPrefix}cc"
-          "LD=${pkgs.stdenv.cc.targetPrefix}cc"
-        ];
-        # postFixup = ''
-        #   patchelf --set-interpreter ${pkgs.glibc}/lib/ld-linux-x86-64.so.2 \
-        #            --set-rpath ${pkgs.lib.makeLibraryPath [pkgs.xorg.libX11 pkgs.xorg.libXft pkgs.fontconfig pkgs.freetype]} \
-        #            $out/bin/st
-        # '';
-      });
+      _st = import ./derivations/st.nix { inherit pkgs suckless; };
       
-      dwl = pkgs.dwl.overrideAttrs (oldAttrs: {
-        src = suckless;
-        postUnpack = ''
-          sourceRoot="$sourceRoot/dwl"
-        '';
-        # nativeBuildInputs = with pkgs; [ pkg-config wayland-scanner ];
-        # buildInputs = with pkgs; [ wayland wayland-protocols libxkbcommon pixman fcft ];
-        # preBuild = ''
-        #   makeFlagsArray+=(
-        #     "PREFIX=$out"
-        #     "CC=$CC"
-        #     "LDFLAGS=$(${pkgs.stdenv.cc.targetPrefix}pkg-config --static --libs wayland-client wayland-protocols wayland-cursor xkbcommon pixman-1 fcft)"
-        #   )
-        # '';
-      });
+      _dwl = import ./derivations/dwl.nix { inherit pkgs suckless; };
       
-      dwmblocks = pkgs.stdenv.mkDerivation {
-        pname = "dwmblocks";
-        version = "custom";
-        src = suckless;
-        postUnpack = ''
-          sourceRoot="$sourceRoot/dwmblocks"
-        '';
-        buildInputs = with pkgs; [ xorg.libX11 ];
-        makeFlags = [ "PREFIX=$(out)" ];
-        preBuild = ''
-          # Remove dangling symlink if it exists
-          rm -f blocks.h
-        '';
-      };
+      _dwmblocks = import ./derivations/dwmblocks.nix { inherit pkgs suckless; };
       
-      dwlblocks = pkgs.stdenv.mkDerivation {
-        pname = "dwlblocks";
-        version = "custom";
-        src = suckless;
-        postUnpack = ''
-          sourceRoot="$sourceRoot/dwlblocks"
-        '';
-        buildInputs = with pkgs; [ wayland wayland-protocols ];
-        makeFlags = [ "PREFIX=$(out)" ];
-        preBuild = ''
-          # Remove dangling symlink if it exists
-          rm -f blocks.h
-        '';
-      };
+      _dwlblocks = import ./derivations/dwlblocks.nix { inherit pkgs suckless; };
       
-      dwlb = pkgs.stdenv.mkDerivation {
-        pname = "dwlb";
-        version = "custom";
-        src = suckless;
-        postUnpack = ''
-          sourceRoot="$sourceRoot/dwlb"
-        '';
-        nativeBuildInputs = with pkgs; [ pkg-config wayland-scanner ];
-        buildInputs = with pkgs; [ wayland wayland-protocols pixman fcft ];
-        makeFlags = [ "PREFIX=$(out)" ];
-      };
+      _dwlb = import ./derivations/dwlb.nix { inherit pkgs suckless; };
       
       # Custom menu script from dotfiles repo
-      menu-custom = pkgs.writeShellScriptBin "menu_custom" ''
-        export PATH="${pkgs.dmenu}/bin:${pkgs.bemenu}/bin:$PATH"
-        ${builtins.readFile "${dotfiles}/.local/bin/menu_custom"}
-      '';
+      _menu_custom = pkgs.writeShellScriptBin "menu_custom" (
+        builtins.replaceStrings 
+          ["ente-otp-manager" "wifimenu \"--$MENU_CMD\""] 
+          ["enteauth" "networkmanager_dmenu"] 
+          (builtins.readFile "${dotfiles}/.local/bin/menu_custom")
+      );
       
       # Shared configuration module
       baseConfig = { config, pkgs, lib, ... }: {
             # Allow unfree packages
             nixpkgs.config.allowUnfree = true;
+            
+            # Apply overlays
+            nixpkgs.overlays = [
+              (final: prev: {
+                bitwarden-menu = prev.bitwarden-menu.overrideAttrs (oldAttrs: {
+                  postPatch = (oldAttrs.postPatch or "") + ''
+                    # Fix KeyError when folderId is missing (only reads, not assignments)
+                    sed -i "s/\(\['\|, \)\(['a-z]*\)\['folderId'\]/\1\2.get('folderId')/g" bwm/bwview.py
+                  '';
+                });
+                # Wrap ente-auth with software rendering for AMD Strix GPU compatibility
+                ente-auth = prev.ente-auth.overrideAttrs (oldAttrs: {
+                  postFixup = (oldAttrs.postFixup or "") + ''
+                    wrapProgram $out/bin/enteauth \
+                      --set LIBGL_ALWAYS_SOFTWARE 1
+                  '';
+                });
+              })
+            ];
 
             boot.loader = {
               systemd-boot.enable = true;
@@ -172,23 +117,24 @@
             # Locale
             i18n.defaultLocale = "en_US.UTF-8";
 
+            services.dbus.enable = true;
+
             # X11 Configuration
             services.xserver = {
               enable = true;
+              autorun = false;
               
-              # Display manager
-              displayManager = {
-                lightdm.enable = true;
-                defaultSession = "none+dwm";
-              };
+              displayManager.startx.enable = true;
+              displayManager.startx.generateScript = true;
+              displayManager.startx.extraCommands = ''
+                ${_dwmblocks}/bin/dwmblocks &
+              '';
               
-              # Use custom dwm
               windowManager.dwm = {
                 enable = true;
                 package = _dwm;
               };
               
-              # Keyboard
               xkb.layout = "us";
             };
 
@@ -200,9 +146,28 @@
               [Desktop Entry]
               Name=dwl
               Comment=dwl - dwm for Wayland
-              Exec=${dwl}/bin/dwl
+              Exec=${_dwl}/bin/dwl
               Type=Application
             '';
+
+            # AMD GPU
+            hardware.graphics.enable = true;
+            hardware.graphics.enable32Bit = true;
+            hardware.graphics.extraPackages = with pkgs; [
+              vulkan-loader
+            ];
+
+            # Keyring for secrets (needed by ente-auth, bitwarden, etc)
+            services.gnome.gnome-keyring.enable = true;
+            security.pam.services.login.enableGnomeKeyring = true;
+            security.pam.services.passwd.enableGnomeKeyring = true;
+            security.pam.services.greetd.enableGnomeKeyring = true;
+            
+            # GPG with dmenu pinentry
+            programs.gnupg.agent = {
+              enable = true;
+              pinentryPackage = pkgs.pinentry-dmenu;
+            };
 
             # Sound
             security.rtkit.enable = true;
@@ -243,23 +208,37 @@
                 user.name = "kanielrkirby";
               };
             };
+            
+            # Bash configuration with zoxide
+            programs.bash = {
+              interactiveShellInit = ''
+                eval "$(${pkgs.zoxide}/bin/zoxide init bash)"
+              '';
+            };
 
-            # System packages
-            environment.systemPackages = with pkgs; [
-              # Suckless software (custom builds)
-              _dwm
-              dwl
-              _st
-              dwmblocks
-              dwlblocks
-              dwlb
-              menu-custom
+             # System packages
+             environment.systemPackages = with pkgs; [
+               # Suckless software (custom builds)
+               _dwm
+               _dwl
+               _st
+               _dwmblocks
+               _dwlblocks
+               _dwlb
+               _menu_custom
               
               # Menu and tools
               dmenu
               wmenu
               foot
-              pkgs.xorg.xinit
+              bitwarden-menu
+              bitwarden-cli
+              networkmanager_dmenu
+              ente-auth
+              ente-cli
+              libsecret
+              pinentry-dmenu
+              gcr
               
               # Browsers
               qutebrowser
@@ -295,6 +274,10 @@
               mullvad-vpn
               stow  # For dotfiles management
               
+              # Clipboard
+              xclip
+              wl-clipboard
+              
               # File manager
               xfce.thunar
               
@@ -313,6 +296,8 @@
               
               # LF file manager
               lf
+
+              opencode
               
               # sxhkd (commented out for now)
               # sxhkd
@@ -326,9 +311,24 @@
                 chown -h mx:users /home/mx/.dotfiles
               fi
               
-              # Run stow as user
-              ${pkgs.su}/bin/su - mx -c "cd /home/mx/.dotfiles && ${pkgs.stow}/bin/stow -t /home/mx --restow ."
+              # Run stow as user (exclude qutebrowser, it needs writable config)
+              ${pkgs.su}/bin/su - mx -c "cd /home/mx/.dotfiles && ${pkgs.stow}/bin/stow -t /home/mx --restow --ignore='\.config/qutebrowser' ."
+              
+              # Copy qutebrowser config (don't overwrite if exists)
+              if [ ! -d /home/mx/.config/qutebrowser ]; then
+                mkdir -p /home/mx/.config
+                cp -r --no-preserve=mode ${dotfiles}/.config/qutebrowser /home/mx/.config/
+                chown -R mx:users /home/mx/.config/qutebrowser
+                chmod -R u+w /home/mx/.config/qutebrowser
+              fi
             '';
+
+            # Default applications
+            xdg.mime.defaultApplications = {
+              "text/html" = "org.qutebrowser.qutebrowser.desktop";
+              "x-scheme-handler/http" = "org.qutebrowser.qutebrowser.desktop";
+              "x-scheme-handler/https" = "org.qutebrowser.qutebrowser.desktop";
+            };
 
             # Font configuration
             fonts.packages = with pkgs; [

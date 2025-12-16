@@ -8,8 +8,8 @@
     [ (modulesPath + "/installer/scan/not-detected.nix")
     ];
 
-  boot.initrd.availableKernelModules = [ "nvme" "xhci_pci" "thunderbolt" "uas" "sd_mod" ];
-  boot.initrd.kernelModules = [ ];
+  boot.initrd.availableKernelModules = [ "nvme" "xhci_pci" "thunderbolt" "uas" "sd_mod" "amdgpu" ];
+  boot.initrd.kernelModules = [ "amdgpu" ];
   boot.kernelModules = [ "kvm-amd" ];
   boot.extraModulePackages = [ ];
   nixpkgs.hostPlatform = lib.mkDefault "x86_64-linux";
