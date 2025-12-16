@@ -286,6 +286,9 @@
                libnotify
                openssh
                uutils-coreutils-noprefix
+               uutils-findutils
+               uutils-diffutils
+               ffmpeg-full
 
                opencode
             ];
