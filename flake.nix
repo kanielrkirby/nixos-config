@@ -4,20 +4,14 @@
   inputs = {
     nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
     
-    # Your dotfiles repo (stow-managed)
+    # Your dotfiles repo (stow-managed, includes suckless configs)
     dotfiles = {
-      url = "github:kanielrkirby/dotfiles";
-      flake = false;
-    };
-
-    # Your suckless software repo (with subdirs for each program)
-    suckless = {
-      url = "github:kanielrkirby/suckless";  # One repo with dwm/, dwl/, st/, etc subdirs
+      url = "git+https://github.com/kanielrkirby/dotfiles?submodules=1";
       flake = false;
     };
   };
 
-  outputs = { self, nixpkgs, dotfiles, suckless, ... }:
+  outputs = { self, nixpkgs, dotfiles, ... }:
     let
       system = "x86_64-linux";
       pkgs = import nixpkgs {
@@ -25,17 +19,17 @@
         config.allowUnfree = true;
       };
       
-      _dwm = import ./derivations/dwm.nix { inherit pkgs suckless; };
+      _dwm = import ./derivations/dwm.nix { inherit pkgs dotfiles; };
       
-      _st = import ./derivations/st.nix { inherit pkgs suckless; };
+      _st = import ./derivations/st.nix { inherit pkgs dotfiles; };
       
-      _dwl = import ./derivations/dwl.nix { inherit pkgs suckless; };
+      _dwl = import ./derivations/dwl.nix { inherit pkgs dotfiles; };
       
-      _dwmblocks = import ./derivations/dwmblocks.nix { inherit pkgs suckless; };
+      _dwmblocks = import ./derivations/dwmblocks.nix { inherit pkgs dotfiles; };
       
-      _dwlblocks = import ./derivations/dwlblocks.nix { inherit pkgs suckless; };
+      _dwlblocks = import ./derivations/dwlblocks.nix { inherit pkgs dotfiles; };
       
-      _dwlb = import ./derivations/dwlb.nix { inherit pkgs suckless; };
+      _dwlb = import ./derivations/dwlb.nix { inherit pkgs dotfiles; };
       
       # Custom menu script from dotfiles repo
       _menu_custom = pkgs.writeShellScriptBin "menu_custom" (
@@ -44,6 +38,29 @@
           ["enteauth" "networkmanager_dmenu"] 
           (builtins.readFile "${dotfiles}/.local/bin/menu_custom")
       );
+      
+      # fzf file selector with xargs (no confirmation)
+      _ff = pkgs.writeShellScriptBin "ff" ''
+        files=$(${pkgs.fzf}/bin/fzf -m --preview 'cat {}')
+        [[ -n "$files" ]] && echo "$files" | xargs "''${@:-ls}"
+      '';
+      
+      # fzf file selector with xargs (confirmation for dangerous commands)
+      _f = pkgs.writeShellScriptBin "f" ''
+        files=$(${pkgs.fzf}/bin/fzf -m --preview 'cat {}')
+        [[ -z "$files" ]] && exit 1
+        cmd="''${@:-ls}"
+        case "$cmd" in
+          ls|cat|head|tail|file|wc|stat|less|more|diff|grep|awk|echo)
+            echo "$files" | xargs $cmd
+            ;;
+          *)
+            echo "$cmd $(echo "$files" | tr '\n' ' ')"
+            echo -n "yn? " && read -r reply
+            [[ -z "$reply" || "$reply" == "y" ]] && echo "$files" | xargs $cmd
+            ;;
+        esac
+      '';
       
       # Shared configuration module
       baseConfig = { config, pkgs, lib, ... }: {
@@ -109,7 +126,17 @@
             # Networking
             networking.hostName = "nixos";
             networking.networkmanager.enable = true;
+            networking.networkmanager.dns = "dnsmasq";
             networking.hostId = "1f80dbe2";
+            
+            # Wildcard .local domain resolution
+            services.dnsmasq = {
+              enable = true;
+              settings = {
+                address = "/.local/127.0.0.1";
+                server = [ "8.8.8.8" "1.1.1.1" ];  # Forward other queries to real DNS
+              };
+            };
 
             # Time zone
             time.timeZone = "America/New_York";
@@ -128,6 +155,7 @@
               displayManager.startx.generateScript = true;
               displayManager.startx.extraCommands = ''
                 ${_dwmblocks}/bin/dwmblocks &
+                ${pkgs.picom}/bin/picom &
               '';
               
               windowManager.dwm = {
@@ -169,6 +197,8 @@
               pinentryPackage = pkgs.pinentry-dmenu;
             };
 
+            services.picom.enable = true;
+
             # Sound
             security.rtkit.enable = true;
             services.pipewire = {
@@ -181,6 +211,13 @@
 
             # Docker
             virtualisation.docker.enable = true;
+            virtualisation.docker.enableOnBoot = true;
+            virtualisation.docker.daemon.settings = {
+              experimental = true;
+              features = {
+                buildkit = true;
+              };
+            };
 
             # Libvirt
             virtualisation.libvirtd.enable = true;
@@ -216,9 +253,7 @@
               '';
             };
 
-             # System packages
              environment.systemPackages = with pkgs; [
-               # Suckless software (custom builds)
                _dwm
                _dwl
                _st
@@ -226,81 +261,56 @@
                _dwlblocks
                _dwlb
                _menu_custom
-              
-              # Menu and tools
-              dmenu
-              wmenu
-              foot
-              bitwarden-menu
-              bitwarden-cli
-              networkmanager_dmenu
-              ente-auth
-              ente-cli
-              libsecret
-              pinentry-dmenu
-              gcr
-              
-              # Browsers
-              qutebrowser
-              vivaldi
-              firefox
-              
-              # Communication
-              signal-desktop
-              
-              # Development
-              git-lfs
-              helix
-              vim
-              gh
-              clang
-              docker
-              
-              # Terminal tools
-              yazi
-              tmux
-              bash-completion
-              btop
-              tealdeer
-              trash-cli
-              zoxide
-              fzf
-              eza
-              httpie
-              
-              # System utilities
-              brightnessctl
-              wireplumber  # for wpctl
-              mullvad-vpn
-              stow  # For dotfiles management
-              
-              # Clipboard
-              xclip
-              wl-clipboard
-              
-              # File manager
-              xfce.thunar
-              
-              # Media
-              mpv
-              
-              # Notifications
-              dunst  # X11
-              # tiramisu  # Wayland alternative
-              
-              # SSH
-              openssh
-              
-              # Uutils coreutils replacements
-              uutils-coreutils-noprefix
-              
-              # LF file manager
-              lf
-
-              opencode
-              
-              # sxhkd (commented out for now)
-              # sxhkd
+               _ff
+               _f
+               dmenu
+               wmenu
+               foot
+               bitwarden-menu
+               bitwarden-cli
+               networkmanager_dmenu
+               ente-auth
+               ente-cli
+               libsecret
+               pinentry-dmenu
+               gcr
+               qutebrowser
+               vivaldi
+               firefox
+               signal-desktop
+               git-lfs
+               helix
+               vim
+               gh
+               clang
+               lazysql
+               yazi
+               tmux
+               bash-completion
+               btop
+               tealdeer
+               trash-cli
+               zoxide
+               fzf
+               eza
+               httpie
+               brightnessctl
+               wireplumber
+               mullvad-vpn
+               stow
+               xclip
+               wl-clipboard
+               maim
+               slop
+               flameshot
+               xfce.thunar
+               mpv
+               dunst
+               libnotify
+               openssh
+               uutils-coreutils-noprefix
+               lf
+               opencode
             ];
 
             # Deploy dotfiles from git repo using activation script
