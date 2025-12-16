@@ -39,29 +39,7 @@
           (builtins.readFile "${dotfiles}/.local/bin/menu_custom")
       );
       
-      # fzf file selector with xargs (no confirmation)
-      _ff = pkgs.writeShellScriptBin "ff" ''
-        files=$(${pkgs.fzf}/bin/fzf -m --preview 'cat {}')
-        [[ -n "$files" ]] && echo "$files" | xargs "''${@:-ls}"
-      '';
-      
-      # fzf file selector with xargs (confirmation for dangerous commands)
-      _f = pkgs.writeShellScriptBin "f" ''
-        files=$(${pkgs.fzf}/bin/fzf -m --preview 'cat {}')
-        [[ -z "$files" ]] && exit 1
-        cmd="''${@:-ls}"
-        case "$cmd" in
-          ls|cat|head|tail|file|wc|stat|less|more|diff|grep|awk|echo)
-            echo "$files" | xargs $cmd
-            ;;
-          *)
-            echo "$cmd $(echo "$files" | tr '\n' ' ')"
-            echo -n "yn? " && read -r reply
-            [[ -z "$reply" || "$reply" == "y" ]] && echo "$files" | xargs $cmd
-            ;;
-        esac
-      '';
-      
+
       # Shared configuration module
       baseConfig = { config, pkgs, lib, ... }: {
             # Allow unfree packages
@@ -261,8 +239,7 @@
                _dwlblocks
                _dwlb
                _menu_custom
-               _ff
-               _f
+
                dmenu
                wmenu
                foot
@@ -284,7 +261,7 @@
                gh
                clang
                lazysql
-               yazi
+
                tmux
                bash-completion
                btop
@@ -309,7 +286,7 @@
                libnotify
                openssh
                uutils-coreutils-noprefix
-               lf
+
                opencode
             ];
 
