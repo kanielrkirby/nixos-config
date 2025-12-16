@@ -1,11 +1,11 @@
-{ pkgs, suckless }:
+{ pkgs, dotfiles }:
 
 pkgs.dwm.overrideAttrs (oldAttrs: {
-  src = suckless;
+  src = "${dotfiles}/patches/dwm/dwm";
 
-  postUnpack = ''
-    sourceRoot="$sourceRoot/dwm"
-  '';
+  patches = [
+    "${dotfiles}/patches/dwm/01-config.patch"
+  ];
 
   preBuild = ''
     make clean

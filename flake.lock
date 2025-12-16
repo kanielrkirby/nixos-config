@@ -3,17 +3,19 @@
     "dotfiles": {
       "flake": false,
       "locked": {
-        "lastModified": 1765685380,
-        "narHash": "sha256-1jKkoAca3ICIQWevfcv1Vo13AFjcwbxnYtM3g0uuO0s=",
-        "owner": "kanielrkirby",
-        "repo": "dotfiles",
-        "rev": "fc67291558ffecea9842bf79207467df964e4c26",
-        "type": "github"
+        "lastModified": 1765910660,
+        "narHash": "sha256-bG3mVfNEqZblMTgIToxHwvBjZKgk+0bR+zwskDH+zi4=",
+        "ref": "refs/heads/main",
+        "rev": "e0fe4216a6a0ab6a035d87367e4cd9adfcfce700",
+        "revCount": 11,
+        "submodules": true,
+        "type": "git",
+        "url": "https://github.com/kanielrkirby/dotfiles"
       },
       "original": {
-        "owner": "kanielrkirby",
-        "repo": "dotfiles",
-        "type": "github"
+        "submodules": true,
+        "type": "git",
+        "url": "https://github.com/kanielrkirby/dotfiles"
       }
     },
     "nixpkgs": {
@@ -35,24 +37,7 @@
     "root": {
       "inputs": {
         "dotfiles": "dotfiles",
-        "nixpkgs": "nixpkgs",
-        "suckless": "suckless"
-      }
-    },
-    "suckless": {
-      "flake": false,
-      "locked": {
-        "lastModified": 1765657251,
-        "narHash": "sha256-MbKMyQhy4rOmECT8pH+jEgk8BG4eyjeCNdXhUo4peTw=",
-        "owner": "kanielrkirby",
-        "repo": "suckless",
-        "rev": "ee0dfbd61a4b3e417118916ef2a18c40bd8aedae",
-        "type": "github"
-      },
-      "original": {
-        "owner": "kanielrkirby",
-        "repo": "suckless",
-        "type": "github"
+        "nixpkgs": "nixpkgs"
       }
     }
   },

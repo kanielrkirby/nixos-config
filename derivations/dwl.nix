@@ -1,11 +1,12 @@
-{ pkgs, suckless }:
+{ pkgs, dotfiles }:
 
 pkgs.dwl.overrideAttrs (oldAttrs: {
-  src = suckless;
+  src = "${dotfiles}/patches/dwl/dwl";
 
-  postUnpack = ''
-    sourceRoot="$sourceRoot/dwl"
-  '';
+  patches = [
+    "${dotfiles}/patches/dwl/01-ipc.patch"
+    "${dotfiles}/patches/dwl/02-config.patch"
+  ];
 
   # Your fork needs wlroots 0.19, upstream nixpkgs dwl pins 0.18
   buildInputs = map (p: if p.pname or "" == "wlroots" then pkgs.wlroots_0_19 else p) (oldAttrs.buildInputs or []);

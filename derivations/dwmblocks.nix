@@ -1,14 +1,14 @@
-{ pkgs, suckless }:
+{ pkgs, dotfiles }:
 
 pkgs.stdenv.mkDerivation {
   pname = "dwmblocks";
   version = "custom";
 
-  src = suckless;
+  src = "${dotfiles}/patches/dwmblocks/dwmblocks";
 
-  postUnpack = ''
-    sourceRoot="$sourceRoot/dwmblocks"
-  '';
+  patches = [
+    "${dotfiles}/patches/dwmblocks/01-config.patch"
+  ];
 
   buildInputs = with pkgs; [ xorg.libX11 ];
 

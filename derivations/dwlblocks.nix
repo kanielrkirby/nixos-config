@@ -1,14 +1,10 @@
-{ pkgs, suckless }:
+{ pkgs, dotfiles }:
 
 pkgs.stdenv.mkDerivation {
   pname = "dwlblocks";
   version = "custom";
 
-  src = suckless;
-
-  postUnpack = ''
-    sourceRoot="$sourceRoot/dwlblocks"
-  '';
+  src = "${dotfiles}/patches/dwlblocks/dwlblocks";
 
   buildInputs = with pkgs; [ wayland wayland-protocols ];
 

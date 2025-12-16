@@ -1,14 +1,14 @@
-{ pkgs, suckless }:
+{ pkgs, dotfiles }:
 
 pkgs.stdenv.mkDerivation {
   pname = "st";
   version = "git";
 
-  src = suckless;
+  src = "${dotfiles}/patches/st/st";
 
-  postUnpack = ''
-    sourceRoot="$sourceRoot/st"
-  '';
+  patches = [
+    "${dotfiles}/patches/st/01-config.patch"
+  ];
 
   strictDeps = true;
 

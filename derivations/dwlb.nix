@@ -1,14 +1,10 @@
-{ pkgs, suckless }:
+{ pkgs, dotfiles }:
 
 pkgs.stdenv.mkDerivation {
   pname = "dwlb";
   version = "custom";
 
-  src = suckless;
-
-  postUnpack = ''
-    sourceRoot="$sourceRoot/dwlb"
-  '';
+  src = "${dotfiles}/patches/dwlb/dwlb";
 
   nativeBuildInputs = with pkgs; [ pkg-config wayland-scanner ];
 
