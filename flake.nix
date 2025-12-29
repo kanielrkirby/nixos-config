@@ -33,6 +33,7 @@
       _menu_custom = import ./derivations/menu_custom.nix { inherit pkgs; };
       _entemenu = import ./derivations/entemenu.nix { inherit pkgs; };
       _wifimenu = import ./derivations/wifimenu.nix { inherit pkgs; };
+      _comma = import ./derivations/comma.nix { inherit pkgs; };
 
       baseConfig =
         {
@@ -131,6 +132,8 @@
             displayManager.startx.enable = true;
             displayManager.startx.generateScript = true;
             displayManager.startx.extraCommands = /* bash */ ''
+              export XDG_SESSION_CLASS=user
+              export XDG_SESSION_TYPE=x11
               ${_dwmblocks}/bin/dwmblocks &
               ${pkgs.picom}/bin/picom &
             '';
@@ -220,6 +223,8 @@
           programs.bash = {
             interactiveShellInit = /* bash */ ''
               eval "$(fzf --bash)"
+              eval "$(zoxide init bash)"
+              function nope() { ( nohup bash -c "$*" >/dev/null 2>&1 & ) }
             '';
           };
 
@@ -255,6 +260,14 @@
             clang
             lazysql
 
+            vscode-langservers-extracted
+            bash-language-server
+            nil
+            docker-compose-language-service
+            python313Packages.jedi-language-server
+            python313Packages.black
+            python313Packages.libxml2
+
             tmux
             bash-completion
             tealdeer
@@ -276,10 +289,12 @@
             libnotify
             openssh
             uutils-coreutils-noprefix
-            uutils-findutils
-            uutils-diffutils
+            # uutils-findutils
+            findutils  
+            diffutils
             ffmpeg-full
             yt-dlp
+            zoxide
 
             opencode
           ];
