@@ -5,7 +5,7 @@
     nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
 
     dotfiles = {
-      url = "git+https://github.com/kanielrkirby/dotfiles?submodules=1&rev=ccac60a692a3297e3a3dca4a9149e324736bce57";
+      url = "git+https://github.com/kanielrkirby/dotfiles?submodules=1&rev=686e64e1aae3f7a6e8c2bf603153f5ebf3c4c6de";
       flake = false;
     };
   };
