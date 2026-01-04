@@ -238,6 +238,7 @@
             _menu_custom
             _wifimenu
             _entemenu
+            _comma
 
             dmenu
             wmenu
