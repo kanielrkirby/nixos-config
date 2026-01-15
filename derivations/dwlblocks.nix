@@ -5,6 +5,9 @@ pkgs.stdenv.mkDerivation {
   version = "custom";
 
   src = "${dotfiles}/patches/dwlblocks/dwlblocks";
+  patches = [
+    "${dotfiles}/patches/dwlblocks/01-config.patch"
+  ];
 
   buildInputs = with pkgs; [ wayland wayland-protocols ];
 
