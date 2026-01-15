@@ -339,7 +339,18 @@
             ln -sfn ${dotfiles} /home/mx/.dotfiles
             chown -h mx:users /home/mx/.dotfiles
 
+            # Remove qutebrowser dir/symlink before stow (it needs to be writable, handled below)
+            rm -rf /home/mx/.config/qutebrowser
+
             ${pkgs.su}/bin/su - mx -c "cd /home/mx/.dotfiles && ${pkgs.stow}/bin/stow -t /home/mx --restow ."
+
+            # qutebrowser needs a writable config dir, so replace symlink with a copy
+            if [ -L /home/mx/.config/qutebrowser ]; then
+              rm /home/mx/.config/qutebrowser
+              cp -r ${dotfiles}/.config/qutebrowser /home/mx/.config/qutebrowser
+              chown -R mx:users /home/mx/.config/qutebrowser
+              chmod -R u+w /home/mx/.config/qutebrowser
+            fi
           '';
 
           xdg.mime.defaultApplications = {
