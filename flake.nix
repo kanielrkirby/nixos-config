@@ -86,7 +86,22 @@
             grub.enable = false;
           };
 
+          # Use 6.18 kernel for better AMD s2idle support
+          boot.kernelPackages = pkgs.linuxPackages_6_18;
+
           boot.zfs.extraPools = [ "zpool" ];
+          boot.zfs.package = pkgs.zfs_unstable;
+
+          # Disable PCIe ASPM for MT7925 WiFi to prevent driver deadlocks
+          boot.extraModprobeConfig = ''
+            options mt7925e disable_aspm=1
+          '';
+
+          # Lid close → lock (mt7925 wifi driver has deadlock bugs, waiting for kernel patches)
+          services.logind = {
+            lidSwitch = "lock";
+            lidSwitchExternalPower = "lock";
+          };
 
           fileSystems = {
             "/" = {
