@@ -402,6 +402,34 @@
         name = "ubuntu-tools";
         paths = ubuntuPackages;
       };
+
+      # Script to copy dotfiles (run once: nix run .#ubuntu-dotfiles)
+      packages.x86_64-linux.ubuntu-dotfiles = pkgs.writeShellScriptBin "ubuntu-dotfiles" ''
+        set -e
+        DOTFILES_REPO="https://github.com/kanielrkirby/dotfiles"
+        DOTFILES_DIR="$HOME/.dotfiles-src"
+
+        if [ ! -d "$DOTFILES_DIR" ]; then
+          echo "Cloning dotfiles..."
+          ${pkgs.git}/bin/git clone --recurse-submodules "$DOTFILES_REPO" "$DOTFILES_DIR"
+        else
+          echo "Dotfiles already cloned at $DOTFILES_DIR"
+        fi
+
+        echo "Copying dotfiles to home (not symlinking)..."
+        cd "$DOTFILES_DIR"
+        
+        # Use stow in simulate mode to see what would be linked, then copy those files
+        for item in .bashrc .bash_profile .config .local; do
+          if [ -e "$DOTFILES_DIR/$item" ]; then
+            echo "Copying $item..."
+            cp -r --no-preserve=mode "$DOTFILES_DIR/$item" "$HOME/"
+          fi
+        done
+
+        echo "Done! Dotfiles copied to $HOME"
+      '';
+
       # Main system configuration
       nixosConfigurations.nixos = nixpkgs.lib.nixosSystem {
         inherit system;
