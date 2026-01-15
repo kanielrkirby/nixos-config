@@ -375,7 +375,7 @@
 
       # Ubuntu-compatible tools bundle (use with: nix profile install .#ubuntu)
       ubuntuPackages = with pkgs; [
-        _st
+        st  # use stock st, not patched (avoids 200MB dotfiles fetch)
         _comma
         _opencode
 
