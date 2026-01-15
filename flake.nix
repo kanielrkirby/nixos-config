@@ -136,6 +136,7 @@
           networking.networkmanager.enable = true;
           networking.networkmanager.dns = "dnsmasq";
           networking.hostId = "1f80dbe2";
+          networking.firewall.allowedTCPPorts = [ 4096 8443 ];
 
           hardware.bluetooth.enable = true;
 
