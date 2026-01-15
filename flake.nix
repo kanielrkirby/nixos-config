@@ -383,6 +383,10 @@
         git
         gh
 
+        # Editors
+        helix
+        vim
+
         # CLI utilities
         tmux
         bash-completion
@@ -393,6 +397,11 @@
         stow
         httpie
         yt-dlp
+        openssh
+        ffmpeg-full
+        diffutils
+        findutils
+        uutils-coreutils-noprefix
       ];
 
     in
