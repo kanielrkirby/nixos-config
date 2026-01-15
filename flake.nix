@@ -373,8 +373,35 @@
           system.stateVersion = "24.11";
         };
 
+      # Ubuntu-compatible tools bundle (use with: nix profile install .#ubuntu)
+      ubuntuPackages = with pkgs; [
+        _st
+        _comma
+        _opencode
+
+        # Git
+        git
+        gh
+
+        # CLI utilities
+        tmux
+        bash-completion
+        tealdeer
+        trash-cli
+        fzf
+        zoxide
+        stow
+        httpie
+        yt-dlp
+      ];
+
     in
     {
+      # Ubuntu tools bundle
+      packages.x86_64-linux.ubuntu = pkgs.buildEnv {
+        name = "ubuntu-tools";
+        paths = ubuntuPackages;
+      };
       # Main system configuration
       nixosConfigurations.nixos = nixpkgs.lib.nixosSystem {
         inherit system;
