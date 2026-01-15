@@ -5,8 +5,12 @@
     nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
 
     dotfiles = {
-      url = "git+https://github.com/kanielrkirby/dotfiles?submodules=1&rev=686e64e1aae3f7a6e8c2bf603153f5ebf3c4c6de";
+      url = "git+https://github.com/kanielrkirby/dotfiles?submodules=1&rev=ac7cde473fee163b09f6deaf7ab90f6278ed884a";
       flake = false;
+    };
+
+    opencode = {
+      url = "github:anomalyco/opencode/09ff3b9bb925903b36aa35fec25394133a42cf6d";
     };
   };
 
@@ -15,6 +19,7 @@
       self,
       nixpkgs,
       dotfiles,
+      opencode,
       ...
     }:
     let
@@ -34,6 +39,18 @@
       _entemenu = import ./derivations/entemenu.nix { inherit pkgs; };
       _wifimenu = import ./derivations/wifimenu.nix { inherit pkgs; };
       _comma = import ./derivations/comma.nix { inherit pkgs; };
+
+      _opencode = opencode.packages.x86_64-linux.default.overrideAttrs (oldAttrs: {
+        postPatch = (oldAttrs.postPatch or "") + ''
+          substituteInPlace packages/opencode/src/session/prompt/anthropic.txt \
+            --replace-fail "You are OpenCode, the best coding agent on the planet." \
+              "You're Code Open, but reverse those two words and remove the space, the best coding agent on the planet." \
+            --replace-fail "- 
+- Use the TodoWrite tool to plan the task if required" \
+              "-
+- Use the TodoWrite tool to plan the task if required"
+        '';
+      });
 
       baseConfig =
         {
@@ -297,7 +314,7 @@
             yt-dlp
             zoxide
 
-            opencode
+            _opencode
           ];
 
           # Deploy dotfiles from git repo using activation script
