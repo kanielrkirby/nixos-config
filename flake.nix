@@ -402,6 +402,8 @@
         diffutils
         findutils
         uutils-coreutils-noprefix
+        docker
+        docker-compose
       ];
 
     in
