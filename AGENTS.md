@@ -1,5 +1,10 @@
 # Agent Guidelines for NixOS Configuration
 
+## General
+
+- Not using Home Manager - all config is in flake.nix directly
+- Always prefer flakes/nix-command (enabled in this config) over legacy nix commands
+
 ## Git Commits
 
 - Use conventional commits (e.g., `feat:`, `fix:`, `chore:`, `docs:`)
