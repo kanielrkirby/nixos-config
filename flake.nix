@@ -320,6 +320,7 @@
             flameshot
             xfce.thunar
             mpv
+            zathura
             dunst
             libnotify
             openssh
