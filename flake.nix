@@ -3,14 +3,18 @@
 
   inputs = {
     nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
-
     dotfiles = {
-      url = "git+https://github.com/kanielrkirby/dotfiles?submodules=1&rev=ac7cde473fee163b09f6deaf7ab90f6278ed884a";
+      url = "github:kanielrkirby/dotfiles/main?submodules=1";
+      # url = "path:/home/mx/dev/lab/dotfiles";
       flake = false;
     };
-
     opencode = {
-      url = "github:anomalyco/opencode/09ff3b9bb925903b36aa35fec25394133a42cf6d";
+      url = "github:anomalyco/opencode";
+      # url = "path:/home/mx/dev/lab/opencode";
+    };
+    whispaste = {
+      url = "github:kanielrkirby/whispaste";
+      # url = "path:/home/mx/dev/lab/whispercli";
     };
   };
 
@@ -20,6 +24,7 @@
       nixpkgs,
       dotfiles,
       opencode,
+      whispaste,
       ...
     }:
     let
@@ -40,17 +45,37 @@
       _wifimenu = import ./derivations/wifimenu.nix { inherit pkgs; };
       _comma = import ./derivations/comma.nix { inherit pkgs; };
 
-      _opencode = opencode.packages.x86_64-linux.default.overrideAttrs (oldAttrs: {
-        postPatch = (oldAttrs.postPatch or "") + ''
-          substituteInPlace packages/opencode/src/session/prompt/anthropic.txt \
-            --replace-fail "You are OpenCode, the best coding agent on the planet." \
-              "You're Code Open, but reverse those two words and remove the space, the best coding agent on the planet." \
-            --replace-fail "- 
-- Use the TodoWrite tool to plan the task if required" \
-              "-
-- Use the TodoWrite tool to plan the task if required"
-        '';
-      });
+      # _opencode = opencode.packages.x86_64-linux.default.overrideAttrs (oldAttrs: {
+      #   postPatch = (oldAttrs.postPatch or "") + ''
+      #               substituteInPlace packages/opencode/src/session/prompt/anthropic.txt \
+      #                 --replace-fail "You are OpenCode, the best coding agent on the planet." \
+      #                   "You're Code Open, but reverse those two words and remove the space, the best coding agent on the planet." \
+      #                 --replace-fail "- 
+      #     - Use the TodoWrite tool to plan the task if required" \
+      #                   "-
+      #     - Use the TodoWrite tool to plan the task if required"
+      #   '';
+      # });
+      _opencode = opencode.packages.x86_64-linux.default;
+      _whispaste = whispaste.defaultPackage.x86_64-linux;
+
+      mt7925Fixes = pkgs.fetchFromGitHub {
+        owner = "zbowling";
+        repo = "mt7925";
+        rev = "2f006830e5d48377286ab16bcf539e608676ed47";
+        sha256 = "sha256-+ocyoyb3qBYx5i8H9UNOg1htPS4ffN2vB3pGKKiax4k=";
+      };
+
+      patchesDir = "${mt7925Fixes}/kernels/6.18";
+
+      patchFiles = builtins.filter (n: pkgs.lib.hasSuffix ".patch" n) (
+        builtins.attrNames (builtins.readDir patchesDir)
+      );
+
+      mt7925KernelPatches = map (n: {
+        name = "mt7925-${n}";
+        patch = "${patchesDir}/${n}";
+      }) patchFiles;
 
       baseConfig =
         {
@@ -86,8 +111,20 @@
             grub.enable = false;
           };
 
-          # Use 6.18 kernel for better AMD s2idle support
-          boot.kernelPackages = pkgs.linuxPackages_6_18;
+          boot.kernelPackages = pkgs.linuxPackagesFor (
+            pkgs.linux_6_18.override (old: {
+              argsOverride = (old.argsOverride or { }) // rec {
+                version = "6.18.5";
+                modDirVersion = "6.18.5";
+                src = pkgs.fetchurl {
+                  url = "mirror://kernel/linux/kernel/v6.x/linux-${version}.tar.xz";
+                  sha256 = "sha256-GJ0fQJzvjQ0jQhDgRZUXLfOS+MspfhS0R+2Vcg4v2UA=";
+                };
+              };
+
+              kernelPatches = (old.kernelPatches or [ ]) ++ mt7925KernelPatches;
+            })
+          );
 
           boot.zfs.extraPools = [ "zpool" ];
           boot.zfs.package = pkgs.zfs_unstable;
@@ -96,6 +133,12 @@
           boot.extraModprobeConfig = ''
             options mt7925e disable_aspm=1
           '';
+          boot.kernelParams = [
+            "pcie_aspm=off"
+            "nmi_watchdog=1"
+            "softlockup_panic=1"
+            "panic=10"
+          ];
 
           # Lid close → lock (mt7925 wifi driver has deadlock bugs, waiting for kernel patches)
           services.logind = {
@@ -134,22 +177,30 @@
 
           networking.hostName = "nixos";
           networking.networkmanager.enable = true;
-          networking.networkmanager.dns = "dnsmasq";
+          networking.networkmanager.dns = "default";
+          networking.networkmanager.settings.connection."wifi.powersave" = 2;
           networking.hostId = "1f80dbe2";
-          networking.firewall.allowedTCPPorts = [ 4096 8443 ];
+          networking.firewall.allowedTCPPorts = [
+            4096
+            8443
+          ];
+
+          services.udev.extraRules = ''
+            ACTION=="add", SUBSYSTEM=="pci", ATTR{class}=="0x028000", TEST=="power/control", ATTR{power/control}="on"
+          '';
 
           hardware.bluetooth.enable = true;
 
-          services.dnsmasq = {
-            enable = true;
-            settings = {
-              address = "/.local/127.0.0.1";
-              server = [
-                "8.8.8.8"
-                "1.1.1.1"
-              ];
-            };
-          };
+          # services.dnsmasq = {
+          #   enable = true;
+          #   settings = {
+          #     address = "/.local/127.0.0.1";
+          #     server = [
+          #       "8.8.8.8"
+          #       "1.1.1.1"
+          #     ];
+          #   };
+          # };
 
           time.timeZone = "America/New_York";
           # time.timeZone = "America/Chicago";
@@ -162,13 +213,14 @@
             enable = true;
             autorun = false;
 
+            videoDrivers = [ "amdgpu" ];
+
             displayManager.startx.enable = true;
             displayManager.startx.generateScript = true;
             displayManager.startx.extraCommands = /* bash */ ''
               export XDG_SESSION_CLASS=user
               export XDG_SESSION_TYPE=x11
               ${_dwmblocks}/bin/dwmblocks &
-              ${pkgs.picom}/bin/picom &
             '';
 
             windowManager.dwm = {
@@ -177,6 +229,13 @@
             };
 
             xkb.layout = "us";
+
+            # AMD GPU configuration to prevent freezing
+            deviceSection = ''
+              Option "TearFree" "true"
+              Option "DRI" "3"
+              Option "VariableRefresh" "true"
+            '';
           };
 
           programs.hyprland.enable = false;
@@ -192,7 +251,8 @@
           hardware.graphics.enable = true;
           hardware.graphics.enable32Bit = true;
           hardware.graphics.extraPackages = with pkgs; [
-            vulkan-loader
+            # AMD Strix GPU (RDNA 3.5) support
+            rocmPackages.clr.icd
           ];
 
           services.gnome.gnome-keyring.enable = true;
@@ -204,8 +264,6 @@
             enable = true;
             pinentryPackage = pkgs.pinentry-dmenu;
           };
-
-          services.picom.enable = true;
 
           security.rtkit.enable = true;
           services.pipewire = {
@@ -240,6 +298,8 @@
               "wheel"
               "docker"
               "libvirtd"
+              "video"
+              "render"
             ];
             initialPassword = "changeme";
           };
@@ -273,6 +333,7 @@
             _wifimenu
             _entemenu
             _comma
+            _whispaste
 
             dmenu
             wmenu
@@ -318,7 +379,7 @@
             maim
             slop
             flameshot
-            xfce.thunar
+            thunar
             mpv
             zathura
             dunst
@@ -326,32 +387,53 @@
             openssh
             uutils-coreutils-noprefix
             # uutils-findutils
-            findutils  
+            findutils
             diffutils
             ffmpeg-full
             yt-dlp
             zoxide
+            xdotool
+            xclip
+            wl-clipboard
+            wtype
+            ydotool
+            libnotify
 
             _opencode
+
+            # Wine for running Windows apps (e.g. Jagex Launcher)
+            wineWowPackages.staging
+            winetricks
           ];
 
           # Deploy dotfiles from git repo using activation script
           system.activationScripts.dotfiles = /* bash */ ''
-            ln -sfn ${dotfiles} /home/mx/.dotfiles
-            chown -h mx:users /home/mx/.dotfiles
-
-            # Remove qutebrowser dir/symlink before stow (it needs to be writable, handled below)
-            rm -rf /home/mx/.config/qutebrowser
-
-            ${pkgs.su}/bin/su - mx -c "cd /home/mx/.dotfiles && ${pkgs.stow}/bin/stow -t /home/mx --restow ."
-
-            # qutebrowser needs a writable config dir, so replace symlink with a copy
-            if [ -L /home/mx/.config/qutebrowser ]; then
-              rm /home/mx/.config/qutebrowser
-              cp -r ${dotfiles}/.config/qutebrowser /home/mx/.config/qutebrowser
-              chown -R mx:users /home/mx/.config/qutebrowser
-              chmod -R u+w /home/mx/.config/qutebrowser
-            fi
+            src="${dotfiles}"
+            dst="/home/mx"
+            
+            # Copy files with warnings for modified files (never fail, always writable)
+            cd "$src"
+            find . -type f | while read f; do
+              target="$dst/$f"
+              mkdir -p "$(dirname "$target")"
+              
+              # Check if file exists and differs from source
+              if [ -e "$target" ]; then
+                if ! cmp -s "$src/$f" "$target"; then
+                  echo "⚠️  Warning: $f has local edits (not overwriting)"
+                else
+                  # Same content, safe to update
+                  cp "$src/$f" "$target"
+                  chown mx:users "$target"
+                  chmod u+w "$target"
+                fi
+              else
+                # New file, just copy it
+                cp "$src/$f" "$target"
+                chown mx:users "$target"
+                chmod u+w "$target"
+              fi
+            done
           '';
 
           xdg.mime.defaultApplications = {
@@ -430,7 +512,7 @@
 
         echo "Copying dotfiles to home (not symlinking)..."
         cd "$DOTFILES_DIR"
-        
+
         # Use stow in simulate mode to see what would be linked, then copy those files
         for item in .bashrc .bash_profile .config .local; do
           if [ -e "$DOTFILES_DIR/$item" ]; then
