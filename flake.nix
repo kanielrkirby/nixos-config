@@ -4,7 +4,7 @@
   inputs = {
     nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
     dotfiles = {
-      url = "github:kanielrkirby/dotfiles/main?submodules=1";
+      url = "github:kanielrkirby/dotfiles/e303d4ac8826b21eb9d27641d89141b10b61e3a4";
       # url = "path:/home/mx/dev/lab/dotfiles";
       flake = false;
     };
@@ -36,10 +36,10 @@
 
       _dwm = import ./derivations/dwm.nix { inherit pkgs dotfiles; };
       _st = import ./derivations/st.nix { inherit pkgs dotfiles; };
-      _dwl = import ./derivations/dwl.nix { inherit pkgs dotfiles; };
+      # _dwl = import ./derivations/dwl.nix { inherit pkgs dotfiles; };
       _dwmblocks = import ./derivations/dwmblocks.nix { inherit pkgs dotfiles; };
-      _dwlblocks = import ./derivations/dwlblocks.nix { inherit pkgs dotfiles; };
-      _dwlb = import ./derivations/dwlb.nix { inherit pkgs dotfiles; };
+      # _dwlblocks = import ./derivations/dwlblocks.nix { inherit pkgs dotfiles; };
+      # _dwlb = import ./derivations/dwlb.nix { inherit pkgs dotfiles; };
       _menu_custom = import ./derivations/menu_custom.nix { inherit pkgs; };
       _entemenu = import ./derivations/entemenu.nix { inherit pkgs; };
       _wifimenu = import ./derivations/wifimenu.nix { inherit pkgs; };
@@ -141,9 +141,9 @@
           ];
 
           # Lid close → lock (mt7925 wifi driver has deadlock bugs, waiting for kernel patches)
-          services.logind = {
-            lidSwitch = "lock";
-            lidSwitchExternalPower = "lock";
+          services.logind.settings.Login = {
+            HandleLidSwitch = "lock";
+            HandleLidSwitchExternalPower = "lock";
           };
 
           fileSystems = {
@@ -220,13 +220,9 @@
             displayManager.startx.extraCommands = /* bash */ ''
               export XDG_SESSION_CLASS=user
               export XDG_SESSION_TYPE=x11
-              ${_dwmblocks}/bin/dwmblocks &
             '';
 
-            windowManager.dwm = {
-              enable = true;
-              package = _dwm;
-            };
+            windowManager.bspwm.enable = true;
 
             xkb.layout = "us";
 
@@ -240,13 +236,13 @@
 
           programs.hyprland.enable = false;
 
-          environment.etc."wayland-sessions/dwl.desktop".text = ''
-            [Desktop Entry]
-            Name=dwl
-            Comment=dwl - dwm for Wayland
-            Exec=${_dwl}/bin/dwl
-            Type=Application
-          '';
+          # environment.etc."wayland-sessions/dwl.desktop".text = ''
+          #   [Desktop Entry]
+          #   Name=dwl
+          #   Comment=dwl - dwm for Wayland
+          #   Exec=${_dwl}/bin/dwl
+          #   Type=Application
+          # '';
 
           hardware.graphics.enable = true;
           hardware.graphics.enable32Bit = true;
@@ -323,18 +319,23 @@
           };
 
           environment.systemPackages = with pkgs; [
-            _dwm
-            _dwl
-            _st
-            _dwmblocks
-            _dwlblocks
-            _dwlb
+            # _dwm
+            # _dwl
+            # _st
+            # _dwmblocks
+            # _dwlblocks
+            # _dwlb
             _menu_custom
             _wifimenu
             _entemenu
             _comma
             _whispaste
 
+            sxhkd
+            lemonbar-xft
+            bc
+            inotify-tools
+            pulseaudio
             dmenu
             wmenu
             bitwarden-menu
@@ -413,13 +414,16 @@
             
             # Copy files with warnings for modified files (never fail, always writable)
             cd "$src"
-            find . -type f | while read f; do
+            find . -type f \
+              -not -path './.git/*' \
+              -not -path './patches/*' \
+              | while read f; do
               target="$dst/$f"
               mkdir -p "$(dirname "$target")"
               
               # Check if file exists and differs from source
               if [ -e "$target" ]; then
-                if ! cmp -s "$src/$f" "$target"; then
+                if ! ${pkgs.diffutils}/bin/cmp -s "$src/$f" "$target"; then
                   echo "⚠️  Warning: $f has local edits (not overwriting)"
                 else
                   # Same content, safe to update
