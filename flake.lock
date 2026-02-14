@@ -3,11 +3,11 @@
     "dotfiles": {
       "flake": false,
       "locked": {
-        "lastModified": 1771089322,
-        "narHash": "sha256-mw4tCmmdgMGKyz56D7mE7jztlpcF8WoHjAOYqbXk9wA=",
+        "lastModified": 1771089565,
+        "narHash": "sha256-h1KkSsWaktyunnB0ez8nwtASyc1ocyE3j7iwCJjYQKw=",
         "owner": "kanielrkirby",
         "repo": "dotfiles",
-        "rev": "53255b24cd18f37f7730496e82d0096a92157523",
+        "rev": "17b49c5e29c3ddec3ee9248164115e1b79d7a67b",
         "type": "github"
       },
       "original": {
