@@ -414,7 +414,14 @@
             src="${dotfiles}"
             dst="/home/mx"
             
-            # Always overwrite, files are managed by git
+            # Get old dotfiles source from previous generation
+            old_src=""
+            prev_gen=$(readlink /run/current-system 2>/dev/null)
+            if [ -n "$prev_gen" ] && [ -e "$prev_gen/activate" ]; then
+              old_src=$(grep -A 5 "Activation script snippet dotfiles" "$prev_gen/activate" | grep "src=" | head -1 | cut -d'"' -f2)
+            fi
+            
+            # Copy files, check for local edits
             cd "$src"
             find . -type f \
               -not -path './.git/*' \
@@ -422,6 +429,21 @@
               | while read f; do
               target="$dst/$f"
               mkdir -p "$(dirname "$target")"
+              
+              # Check if file exists and has been modified
+              if [ -e "$target" ] && [ -n "$old_src" ] && [ -e "$old_src/$f" ]; then
+                # Compare against OLD source - if it differs, user made local edits
+                if ! ${pkgs.diffutils}/bin/cmp -s "$old_src/$f" "$target"; then
+                  # Local file differs from what we deployed last time
+                  if ! ${pkgs.diffutils}/bin/cmp -s "$src/$f" "$target"; then
+                    # And it also differs from new source - local edits!
+                    echo "ERROR: $f has local edits that would be overwritten"
+                    echo "Please commit or discard local changes before rebuilding"
+                    exit 1
+                  fi
+                fi
+              fi
+              
               cp "$src/$f" "$target"
               chown mx:users "$target"
               chmod u+w "$target"
