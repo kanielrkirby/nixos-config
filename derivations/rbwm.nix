@@ -22,9 +22,9 @@ def dmenu(items, prompt="Select", allow_custom=False):
     display = os.environ.get("DISPLAY")
     
     if wayland:
-        menu_cmd = "bemenu -l 10"
+        menu_cmd = "bemenu -l 10 -i"
     elif display:
-        menu_cmd = "dmenu -l 10"
+        menu_cmd = "dmenu -l 10 -i"
     else:
         print("No display server detected", file=sys.stderr)
         sys.exit(1)
@@ -41,8 +41,8 @@ def dmenu(items, prompt="Select", allow_custom=False):
 
 def type_text(text):
     wayland = os.environ.get("WAYLAND_DISPLAY")
-    # Save original PRIMARY selection
     if wayland:
+        # Save original PRIMARY selection
         original = subprocess.run(["wl-paste", "--primary"], capture_output=True, text=True).stdout
         # Copy to PRIMARY and paste with Shift+Insert
         subprocess.run(["wl-copy", "--primary"], input=text, text=True)
@@ -53,15 +53,27 @@ def type_text(text):
         # Try xclip first, fall back to xsel
         has_xclip = subprocess.run(["which", "xclip"], capture_output=True).returncode == 0
         if has_xclip:
-            original = subprocess.run(["xclip", "-selection", "primary", "-o"], capture_output=True, text=True).stdout
+            # Save both clipboards
+            original_primary = subprocess.run(["xclip", "-selection", "primary", "-o"], capture_output=True, text=True).stdout
+            original_clipboard = subprocess.run(["xclip", "-selection", "clipboard", "-o"], capture_output=True, text=True).stdout
+            # Copy to BOTH primary and clipboard selections
             subprocess.run(["xclip", "-selection", "primary"], input=text, text=True)
+            subprocess.run(["xclip", "-selection", "clipboard"], input=text, text=True)
             subprocess.run(["xdotool", "key", "shift+Insert"])
-            subprocess.run(["xclip", "-selection", "primary"], input=original, text=True)
+            # Restore both clipboards
+            subprocess.run(["xclip", "-selection", "primary"], input=original_primary, text=True)
+            subprocess.run(["xclip", "-selection", "clipboard"], input=original_clipboard, text=True)
         else:
-            original = subprocess.run(["xsel", "-p", "-o"], capture_output=True, text=True).stdout
+            # Save both clipboards
+            original_primary = subprocess.run(["xsel", "-p", "-o"], capture_output=True, text=True).stdout
+            original_clipboard = subprocess.run(["xsel", "-b", "-o"], capture_output=True, text=True).stdout
+            # Copy to BOTH primary and clipboard selections
             subprocess.run(["xsel", "-p", "-i"], input=text, text=True)
+            subprocess.run(["xsel", "-b", "-i"], input=text, text=True)
             subprocess.run(["xdotool", "key", "shift+Insert"])
-            subprocess.run(["xsel", "-p", "-i"], input=original, text=True)
+            # Restore both clipboards
+            subprocess.run(["xsel", "-p", "-i"], input=original_primary, text=True)
+            subprocess.run(["xsel", "-b", "-i"], input=original_clipboard, text=True)
 
 def press_tab():
     """Press Tab key."""

@@ -338,6 +338,7 @@
             bc
             inotify-tools
             pulseaudio
+            xdo
             dmenu
             wmenu
             rbw
@@ -348,8 +349,8 @@
             pinentry-dmenu
             gcr
             qutebrowser
-            vivaldi
             firefox
+            ungoogled-chromium
             signal-desktop
             git-lfs
             helix
@@ -413,7 +414,7 @@
             src="${dotfiles}"
             dst="/home/mx"
             
-            # Copy files with warnings for modified files (never fail, always writable)
+            # Always overwrite, files are managed by git
             cd "$src"
             find . -type f \
               -not -path './.git/*' \
@@ -421,23 +422,9 @@
               | while read f; do
               target="$dst/$f"
               mkdir -p "$(dirname "$target")"
-              
-              # Check if file exists and differs from source
-              if [ -e "$target" ]; then
-                if ! ${pkgs.diffutils}/bin/cmp -s "$src/$f" "$target"; then
-                  echo "⚠️  Warning: $f has local edits (not overwriting)"
-                else
-                  # Same content, safe to update
-                  cp "$src/$f" "$target"
-                  chown mx:users "$target"
-                  chmod u+w "$target"
-                fi
-              else
-                # New file, just copy it
-                cp "$src/$f" "$target"
-                chown mx:users "$target"
-                chmod u+w "$target"
-              fi
+              cp "$src/$f" "$target"
+              chown mx:users "$target"
+              chmod u+w "$target"
             done
           '';
 
