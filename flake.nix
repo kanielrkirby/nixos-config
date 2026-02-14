@@ -4,8 +4,8 @@
   inputs = {
     nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
     dotfiles = {
-      url = "github:kanielrkirby/dotfiles/e303d4ac8826b21eb9d27641d89141b10b61e3a4";
-      # url = "path:/home/mx/dev/lab/dotfiles";
+      # url = "github:kanielrkirby/dotfiles/e303d4ac8826b21eb9d27641d89141b10b61e3a4";
+      url = "path:/home/mx/dev/lab/dotfiles";
       flake = false;
     };
     opencode = {
@@ -34,12 +34,7 @@
         config.allowUnfree = true;
       };
 
-      _dwm = import ./derivations/dwm.nix { inherit pkgs dotfiles; };
       _st = import ./derivations/st.nix { inherit pkgs dotfiles; };
-      # _dwl = import ./derivations/dwl.nix { inherit pkgs dotfiles; };
-      _dwmblocks = import ./derivations/dwmblocks.nix { inherit pkgs dotfiles; };
-      # _dwlblocks = import ./derivations/dwlblocks.nix { inherit pkgs dotfiles; };
-      # _dwlb = import ./derivations/dwlb.nix { inherit pkgs dotfiles; };
       _menu_custom = import ./derivations/menu_custom.nix { inherit pkgs; };
       _entemenu = import ./derivations/entemenu.nix { inherit pkgs; };
       _wifimenu = import ./derivations/wifimenu.nix { inherit pkgs; };
@@ -321,7 +316,7 @@
           environment.systemPackages = with pkgs; [
             # _dwm
             # _dwl
-            # _st
+            _st
             # _dwmblocks
             # _dwlblocks
             # _dwlb
