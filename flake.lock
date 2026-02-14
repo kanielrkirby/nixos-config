@@ -3,8 +3,8 @@
     "dotfiles": {
       "flake": false,
       "locked": {
-        "lastModified": 1771027651,
-        "narHash": "sha256-qgaThqEyUQ94Uf6qAwMPWHF7jUFIUcMEwr0q5xCSUL8=",
+        "lastModified": 1771028401,
+        "narHash": "sha256-M9ZRMHjuERaLskWYHFbnKym8Aj5l+F2/E6l+K6k+dHE=",
         "path": "/home/mx/dev/lab/dotfiles",
         "type": "path"
       },
@@ -84,7 +84,24 @@
         "dotfiles": "dotfiles",
         "nixpkgs": "nixpkgs",
         "opencode": "opencode",
+        "st-src": "st-src",
         "whispaste": "whispaste"
+      }
+    },
+    "st-src": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1768569127,
+        "narHash": "sha256-PUMhcvPy63G9qQ3S8kTBLXf4RmPlPDRA61c35tspBu4=",
+        "ref": "refs/heads/master",
+        "rev": "688f70add0d1da8a416bf7df763328d694a24a3a",
+        "revCount": 1181,
+        "type": "git",
+        "url": "https://git.suckless.org/st"
+      },
+      "original": {
+        "type": "git",
+        "url": "https://git.suckless.org/st"
       }
     },
     "whispaste": {

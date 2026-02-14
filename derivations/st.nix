@@ -1,10 +1,10 @@
-{ pkgs, dotfiles, ... }:
+{ pkgs, dotfiles, st-src, ... }:
 
 pkgs.stdenv.mkDerivation {
   pname = "st";
   version = "git";
 
-  src = "${dotfiles}/patches/st/st";
+  src = st-src;
 
   patches = [
     "${dotfiles}/patches/st/01-config.patch"

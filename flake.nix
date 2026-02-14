@@ -4,7 +4,7 @@
   inputs = {
     nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
     dotfiles = {
-      # url = "github:kanielrkirby/dotfiles/e303d4ac8826b21eb9d27641d89141b10b61e3a4";
+      # url = "github:kanielrkirby/dotfiles/main?submodules=1";
       url = "path:/home/mx/dev/lab/dotfiles";
       flake = false;
     };
@@ -16,6 +16,10 @@
       url = "github:kanielrkirby/whispaste";
       # url = "path:/home/mx/dev/lab/whispercli";
     };
+    st-src = {
+      url = "git+https://git.suckless.org/st";
+      flake = false;
+    };
   };
 
   outputs =
@@ -25,6 +29,7 @@
       dotfiles,
       opencode,
       whispaste,
+      st-src,
       ...
     }:
     let
@@ -34,7 +39,7 @@
         config.allowUnfree = true;
       };
 
-      _st = import ./derivations/st.nix { inherit pkgs dotfiles; };
+      _st = import ./derivations/st.nix { inherit pkgs dotfiles st-src; };
       _menu_custom = import ./derivations/menu_custom.nix { inherit pkgs; };
       _entemenu = import ./derivations/entemenu.nix { inherit pkgs; };
       _wifimenu = import ./derivations/wifimenu.nix { inherit pkgs; };
