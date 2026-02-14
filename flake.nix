@@ -4,8 +4,8 @@
   inputs = {
     nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
     dotfiles = {
-      # url = "github:kanielrkirby/dotfiles/main";
-      url = "path:/home/mx/dev/lab/dotfiles";
+      url = "github:kanielrkirby/dotfiles/main";
+      # url = "path:/home/mx/dev/lab/dotfiles";
       flake = false;
     };
     opencode = {
