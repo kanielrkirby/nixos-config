@@ -83,6 +83,22 @@ The dotfiles flake input is configured to use a local path for development (`pat
 
 **Note**: The local path allows instant testing without commits. GitHub URL is only for official releases.
 
+### Quick Deployment Flow (Single Command)
+
+When you need to deploy quickly without testing, use this one-liner that handles everything:
+
+```bash
+cd /home/mx/dev/lab/dotfiles && git add .config/bspwm/panel.py && git commit -m "feat: description" && git push && cd /etc/nixos && sed -i 's|# url = "github:kanielrkirby/dotfiles/main";|url = "github:kanielrkirby/dotfiles/main";|; s|url = "path:/home/mx/dev/lab/dotfiles";|# url = "path:/home/mx/dev/lab/dotfiles";|' flake.nix && nix flake update dotfiles && git add flake.lock && git commit -m "chore: update dotfiles flake input" && git push && sed -i 's|url = "github:kanielrkirby/dotfiles/main";|# url = "github:kanielrkirby/dotfiles/main";|; s|# url = "path:/home/mx/dev/lab/dotfiles";|url = "path:/home/mx/dev/lab/dotfiles";|' flake.nix && rm /home/mx/.config/bspwm/panel.py && sudo nixos-rebuild switch
+```
+
+**What it does:**
+1. Commits and pushes dotfiles changes
+2. Switches flake.nix to GitHub URL
+3. Updates flake input
+4. Commits and pushes flake.lock
+5. Restores local path in flake.nix
+6. Removes local file and rebuilds NixOS
+
 ## Editing Patched Projects (dwm, st, dwmblocks, etc.)
 
 1. `cd ~/dev/lab/dotfiles/patches/<project>/<project>` (the submodule)
