@@ -4,7 +4,7 @@
   inputs = {
     nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
     dotfiles = {
-      # url = "github:kanielrkirby/dotfiles/main?submodules=1";
+      # url = "github:kanielrkirby/dotfiles/main";
       url = "path:/home/mx/dev/lab/dotfiles";
       flake = false;
     };
@@ -43,6 +43,7 @@
       _menu_custom = import ./derivations/menu_custom.nix { inherit pkgs; };
       _entemenu = import ./derivations/entemenu.nix { inherit pkgs; };
       _wifimenu = import ./derivations/wifimenu.nix { inherit pkgs; };
+      _rbwm = import ./derivations/rbwm.nix { inherit pkgs; };
       _comma = import ./derivations/comma.nix { inherit pkgs; };
 
       # _opencode = opencode.packages.x86_64-linux.default.overrideAttrs (oldAttrs: {
@@ -328,6 +329,7 @@
             _menu_custom
             _wifimenu
             _entemenu
+            _rbwm
             _comma
             _whispaste
 
@@ -338,8 +340,7 @@
             pulseaudio
             dmenu
             wmenu
-            bitwarden-menu
-            bitwarden-cli
+            rbw
             networkmanager_dmenu
             ente-auth
             ente-cli

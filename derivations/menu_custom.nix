@@ -27,7 +27,7 @@ pkgs.writeShellScriptBin "menu_custom" /* bash */ ''
   run_cmd() {
     case "$1" in
       ">") "$0" runinterm ;;
-      ",") "$runprefix" bwm ;;
+      ",") "$runprefix" rbwm ;;
       "&") "$runprefix" wifimenu ;;
       "'") "$runprefix" entemenu ;;
       *) "$runprefix" "$1" ;;
