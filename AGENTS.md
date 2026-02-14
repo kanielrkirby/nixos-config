@@ -24,11 +24,64 @@ sudo nixos-rebuild switch # only after user confirms
 
 ## Updating Dotfiles
 
-1. Push changes to GitHub
-2. Update the `rev` in `flake.nix` to the new commit hash
-3. `nix flake update dotfiles`
-4. `sudo nixos-rebuild test`
-5. User confirms, then `sudo nixos-rebuild switch`
+The dotfiles flake input is configured to use a local path for development (`path:/home/mx/dev/lab/dotfiles`) but must be switched to GitHub URL for updates.
+
+### Standard Deployment Flow
+
+1. **Copy modified files to dotfiles repo**
+   ```bash
+   cp /home/mx/.config/bspwm/panel.sh /home/mx/dev/lab/dotfiles/.config/bspwm/panel.sh
+   ```
+
+2. **Restore local backups** (if any files were backed up before editing)
+   ```bash
+   cp /home/mx/.bash_profile.backup /home/mx/.bash_profile
+   ```
+
+3. **Commit and push dotfiles changes**
+   ```bash
+   cd /home/mx/dev/lab/dotfiles
+   git add <files>
+   git commit -m "feat: description"
+   git push
+   ```
+
+4. **Switch flake.nix to GitHub URL** (uncomment GitHub, comment local path)
+   ```nix
+   dotfiles = {
+     url = "github:kanielrkirby/dotfiles/main";
+     # url = "path:/home/mx/dev/lab/dotfiles";
+     flake = false;
+   };
+   ```
+
+5. **Update flake input**
+   ```bash
+   nix flake update dotfiles
+   ```
+
+6. **Commit and push flake.lock**
+   ```bash
+   git add flake.lock
+   git commit -m "chore: update dotfiles flake input"
+   git push
+   ```
+
+7. **Restore local path in flake.nix** (comment GitHub, uncomment local path)
+   ```nix
+   dotfiles = {
+     # url = "github:kanielrkirby/dotfiles/main";
+     url = "path:/home/mx/dev/lab/dotfiles";
+     flake = false;
+   };
+   ```
+
+8. **Rebuild NixOS**
+   ```bash
+   sudo nixos-rebuild switch
+   ```
+
+**Note**: The local path allows instant testing without commits. GitHub URL is only for official releases.
 
 ## Editing Patched Projects (dwm, st, dwmblocks, etc.)
 
