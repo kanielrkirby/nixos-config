@@ -4,8 +4,8 @@
   inputs = {
     nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
     dotfiles = {
-      url = "github:kanielrkirby/dotfiles/main";
-      # url = "path:/home/mx/dev/lab/dotfiles";
+      # url = "github:kanielrkirby/dotfiles/main";
+      url = "path:/home/mx/dev/lab/dotfiles";
       flake = false;
     };
     opencode = {
@@ -45,6 +45,7 @@
       _wifimenu = import ./derivations/wifimenu.nix { inherit pkgs; };
       _rbwm = import ./derivations/rbwm.nix { inherit pkgs; };
       _comma = import ./derivations/comma.nix { inherit pkgs; };
+      _battery_notify = import ./derivations/battery_notify.nix { inherit pkgs; };
 
       # _opencode = opencode.packages.x86_64-linux.default.overrideAttrs (oldAttrs: {
       #   postPatch = (oldAttrs.postPatch or "") + ''
@@ -221,6 +222,7 @@
             displayManager.startx.extraCommands = /* bash */ ''
               export XDG_SESSION_CLASS=user
               export XDG_SESSION_TYPE=x11
+              ${_battery_notify}/bin/battery-notify &
             '';
 
             windowManager.bspwm.enable = true;
@@ -332,6 +334,7 @@
             _rbwm
             _comma
             _whispaste
+            _battery_notify
 
             sxhkd
             lemonbar-xft
