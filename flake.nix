@@ -387,6 +387,7 @@
             trash-cli
             fzf
             httpie
+            timewarrior
             brightnessctl
             wireplumber
             mullvad-vpn
