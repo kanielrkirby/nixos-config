@@ -3,14 +3,18 @@
     "dotfiles": {
       "flake": false,
       "locked": {
-        "lastModified": 1771528370,
-        "narHash": "sha256-KIoExcJLncp3zHAmIrvKF6XN58jQJlzxMJiEM7jU8bs=",
-        "path": "/home/mx/dev/lab/dotfiles",
-        "type": "path"
+        "lastModified": 1771878347,
+        "narHash": "sha256-wxdM5NQ7KdhYQEYAZULT4tVtFPeq5h2LtGYLYPPK3EQ=",
+        "owner": "kanielrkirby",
+        "repo": "dotfiles",
+        "rev": "82de628ed82625a9d662494eef91e0fc82b080f6",
+        "type": "github"
       },
       "original": {
-        "path": "/home/mx/dev/lab/dotfiles",
-        "type": "path"
+        "owner": "kanielrkirby",
+        "ref": "main",
+        "repo": "dotfiles",
+        "type": "github"
       }
     },
     "nixpkgs": {
