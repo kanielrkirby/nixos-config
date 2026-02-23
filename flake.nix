@@ -185,6 +185,16 @@
           networking.firewall.allowedTCPPorts = [
             4096
             8443
+            1714 # KDE Connect
+          ];
+          networking.firewall.allowedUDPPorts = [
+            1714 # KDE Connect
+          ];
+          networking.firewall.allowedTCPPortRanges = [
+            { from = 1714; to = 1764; } # KDE Connect
+          ];
+          networking.firewall.allowedUDPPortRanges = [
+            { from = 1714; to = 1764; } # KDE Connect
           ];
 
           services.udev.extraRules = ''
@@ -355,6 +365,7 @@
             firefox
             ungoogled-chromium
             signal-desktop
+            kdePackages.kdeconnect-kde
             git-lfs
             helix
             vim
