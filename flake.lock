@@ -1,23 +1,50 @@
 {
   "nodes": {
+    "dmente": {
+      "inputs": {
+        "nixpkgs": "nixpkgs"
+      },
+      "locked": {
+        "lastModified": 1771949764,
+        "narHash": "sha256-5LZHNQ5S9Gbwx+IcBxXFw7zWb9WAZa2KvJwdo2Go8mM=",
+        "path": "/home/mx/dev/lab/dmente",
+        "type": "path"
+      },
+      "original": {
+        "path": "/home/mx/dev/lab/dmente",
+        "type": "path"
+      }
+    },
     "dotfiles": {
       "flake": false,
       "locked": {
-        "lastModified": 1771879721,
-        "narHash": "sha256-/rHNXktqgyU+t23a9rfmeUFQQsJrx+4NcuroUhOxDyg=",
-        "owner": "kanielrkirby",
-        "repo": "dotfiles",
-        "rev": "7b554f446c722474016fdee31cf1c735bdb56ed0",
-        "type": "github"
+        "lastModified": 1771879722,
+        "narHash": "sha256-47e54deHuPqriBHxAk2iIy/iZVEBur1jJfYPuNRqmSg=",
+        "path": "/home/mx/dev/lab/dotfiles",
+        "type": "path"
       },
       "original": {
-        "owner": "kanielrkirby",
-        "ref": "main",
-        "repo": "dotfiles",
-        "type": "github"
+        "path": "/home/mx/dev/lab/dotfiles",
+        "type": "path"
       }
     },
     "nixpkgs": {
+      "locked": {
+        "lastModified": 1771008912,
+        "narHash": "sha256-gf2AmWVTs8lEq7z/3ZAsgnZDhWIckkb+ZnAo5RzSxJg=",
+        "owner": "NixOS",
+        "repo": "nixpkgs",
+        "rev": "a82ccc39b39b621151d6732718e3e250109076fa",
+        "type": "github"
+      },
+      "original": {
+        "owner": "NixOS",
+        "ref": "nixos-unstable",
+        "repo": "nixpkgs",
+        "type": "github"
+      }
+    },
+    "nixpkgs_2": {
       "locked": {
         "lastModified": 1769018530,
         "narHash": "sha256-MJ27Cy2NtBEV5tsK+YraYr2g851f3Fl1LpNHDzDX15c=",
@@ -33,13 +60,13 @@
         "type": "github"
       }
     },
-    "nixpkgs_2": {
+    "nixpkgs_3": {
       "locked": {
-        "lastModified": 1768393167,
-        "narHash": "sha256-n2063BRjHde6DqAz2zavhOOiLUwA3qXt7jQYHyETjX8=",
+        "lastModified": 1768569498,
+        "narHash": "sha256-bB6Nt99Cj8Nu5nIUq0GLmpiErIT5KFshMQJGMZwgqUo=",
         "owner": "NixOS",
         "repo": "nixpkgs",
-        "rev": "2f594d5af95d4fdac67fba60376ec11e482041cb",
+        "rev": "be5afa0fcb31f0a96bf9ecba05a516c66fcd8114",
         "type": "github"
       },
       "original": {
@@ -49,7 +76,7 @@
         "type": "github"
       }
     },
-    "nixpkgs_3": {
+    "nixpkgs_4": {
       "locked": {
         "lastModified": 1768875095,
         "narHash": "sha256-dYP3DjiL7oIiiq3H65tGIXXIT1Waiadmv93JS0sS+8A=",
@@ -67,26 +94,24 @@
     },
     "opencode": {
       "inputs": {
-        "nixpkgs": "nixpkgs_2"
+        "nixpkgs": "nixpkgs_3"
       },
       "locked": {
-        "lastModified": 1769093779,
-        "narHash": "sha256-zROGrNPyb2qTJtTabqXmfTeyh7o0U4fsCujBhUHG/18=",
-        "owner": "anomalyco",
-        "repo": "opencode",
-        "rev": "c3f393bcc10ece40c979fee8861ced19844a8108",
-        "type": "github"
+        "lastModified": 0,
+        "narHash": "sha256-KVuLqSPlpbw9ick/C/InXpVO4EYa6tqk5p0j6yTf+Yk=",
+        "path": "/home/mx/dev/lab/opencode",
+        "type": "path"
       },
       "original": {
-        "owner": "anomalyco",
-        "repo": "opencode",
-        "type": "github"
+        "path": "/home/mx/dev/lab/opencode",
+        "type": "path"
       }
     },
     "root": {
       "inputs": {
+        "dmente": "dmente",
         "dotfiles": "dotfiles",
-        "nixpkgs": "nixpkgs",
+        "nixpkgs": "nixpkgs_2",
         "opencode": "opencode",
         "st-src": "st-src",
         "whispaste": "whispaste"
@@ -110,20 +135,17 @@
     },
     "whispaste": {
       "inputs": {
-        "nixpkgs": "nixpkgs_3"
+        "nixpkgs": "nixpkgs_4"
       },
       "locked": {
-        "lastModified": 1769801214,
-        "narHash": "sha256-WpzqZA7/Ugqu1jHZw/Q+Ft8JuRNvhW/MT88hMfQ8jdE=",
-        "owner": "kanielrkirby",
-        "repo": "whispaste",
-        "rev": "b4a392d4af363e70f4a5ac12365925b37287e8e9",
-        "type": "github"
+        "lastModified": 1770942555,
+        "narHash": "sha256-dIN2OO1ptibXuiq1/FVgL0CTeOiP5vSILncIvPIwyQw=",
+        "path": "/home/mx/dev/lab/whisper-tools/whispaste",
+        "type": "path"
       },
       "original": {
-        "owner": "kanielrkirby",
-        "repo": "whispaste",
-        "type": "github"
+        "path": "/home/mx/dev/lab/whisper-tools/whispaste",
+        "type": "path"
       }
     }
   },

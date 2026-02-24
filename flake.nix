@@ -4,17 +4,21 @@
   inputs = {
     nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
     dotfiles = {
-      url = "github:kanielrkirby/dotfiles/main";
-      # url = "path:/home/mx/dev/lab/dotfiles";
+      # url = "github:kanielrkirby/dotfiles/main";
+      url = "path:/home/mx/dev/lab/dotfiles";
       flake = false;
     };
     opencode = {
-      url = "github:anomalyco/opencode";
-      # url = "path:/home/mx/dev/lab/opencode";
+      # url = "github:anomalyco/opencode";
+      url = "path:/home/mx/dev/lab/opencode";
     };
     whispaste = {
-      url = "github:kanielrkirby/whispaste";
-      # url = "path:/home/mx/dev/lab/whispercli";
+      # url = "github:kanielrkirby/whispaste";
+      url = "path:/home/mx/dev/lab/whisper-tools/whispaste";
+    };
+    dmente = {
+      # url = "github:kanielrkirby/dmente";
+      url = "path:/home/mx/dev/lab/dmente";
     };
     st-src = {
       url = "git+https://git.suckless.org/st";
@@ -29,6 +33,7 @@
       dotfiles,
       opencode,
       whispaste,
+      dmente,
       st-src,
       ...
     }:
@@ -41,12 +46,12 @@
 
       _st = import ./derivations/st.nix { inherit pkgs dotfiles st-src; };
       _menu_custom = import ./derivations/menu_custom.nix { inherit pkgs; };
-      _entemenu = import ./derivations/entemenu.nix { inherit pkgs; };
       _wifimenu = import ./derivations/wifimenu.nix { inherit pkgs; };
       _rbwm = import ./derivations/rbwm.nix { inherit pkgs; };
       _comma = import ./derivations/comma.nix { inherit pkgs; };
       _battery_notify = import ./derivations/battery_notify.nix { inherit pkgs; };
 
+      _dmente = dmente.packages.x86_64-linux.default;
       # _opencode = opencode.packages.x86_64-linux.default.overrideAttrs (oldAttrs: {
       #   postPatch = (oldAttrs.postPatch or "") + ''
       #               substituteInPlace packages/opencode/src/session/prompt/anthropic.txt \
@@ -340,7 +345,7 @@
             # _dwlb
             _menu_custom
             _wifimenu
-            _entemenu
+            _dmente
             _rbwm
             _comma
             _whispaste

@@ -29,7 +29,7 @@ pkgs.writeShellScriptBin "menu_custom" /* bash */ ''
       ">") "$0" runinterm ;;
       ",") "$runprefix" rbwm ;;
       "&") "$runprefix" wifimenu ;;
-      "'") "$runprefix" entemenu ;;
+      "'") "$runprefix" dmente ;;
       *) "$runprefix" "$1" ;;
     esac
   }
