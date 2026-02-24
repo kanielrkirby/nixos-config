@@ -5,31 +5,30 @@
         "nixpkgs": "nixpkgs"
       },
       "locked": {
-        "lastModified": 1771949764,
-        "narHash": "sha256-5LZHNQ5S9Gbwx+IcBxXFw7zWb9WAZa2KvJwdo2Go8mM=",
-        "path": "/home/mx/dev/lab/dmente",
-        "type": "path"
+        "lastModified": 1771950689,
+        "narHash": "sha256-dg//2siUtWIlKBSUe/AGtwMxxlhQEt7AsiCELF869QU=",
+        "owner": "kanielrkirby",
+        "repo": "dmente",
+        "rev": "10c0f7f883a6f1e345b597f82bcd660d019344c2",
+        "type": "github"
       },
       "original": {
-        "path": "/home/mx/dev/lab/dmente",
-        "type": "path"
+        "owner": "kanielrkirby",
+        "repo": "dmente",
+        "type": "github"
       }
     },
     "dotfiles": {
       "flake": false,
       "locked": {
-        "lastModified": 1771950044,
-        "narHash": "sha256-cvvID9MWL1+kdZut0v52131m/2XQq5d3/y94mDtvOC4=",
-        "owner": "kanielrkirby",
-        "repo": "dotfiles",
-        "rev": "777b442bf358c5099479d369d45b593e10751510",
-        "type": "github"
+        "lastModified": 1771950046,
+        "narHash": "sha256-9YbedKfkOAFocQ6m+MQ8kCH37wsffnRK12mM2KbTRAE=",
+        "path": "/home/mx/dev/lab/dotfiles",
+        "type": "path"
       },
       "original": {
-        "owner": "kanielrkirby",
-        "ref": "main",
-        "repo": "dotfiles",
-        "type": "github"
+        "path": "/home/mx/dev/lab/dotfiles",
+        "type": "path"
       }
     },
     "nixpkgs": {
