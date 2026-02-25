@@ -13,7 +13,7 @@
       url = "github:anomalyco/opencode";
     };
     whispaste = {
-      url = "github:kanielrkirby/whispaste";
+      url = "github:kanielrkirby/whisper-tools?dir=whispaste";
     };
     dmente = {
       url = "github:kanielrkirby/dmente";

@@ -243,16 +243,18 @@
         "nixpkgs": "nixpkgs_6"
       },
       "locked": {
-        "lastModified": 1769801214,
-        "narHash": "sha256-WpzqZA7/Ugqu1jHZw/Q+Ft8JuRNvhW/MT88hMfQ8jdE=",
+        "dir": "whispaste",
+        "lastModified": 1772036715,
+        "narHash": "sha256-+fHwW69h7C4ZZ4iWT0n9gfLYhI/g/Rx0R42qtYiaxOE=",
         "owner": "kanielrkirby",
-        "repo": "whispaste",
-        "rev": "b4a392d4af363e70f4a5ac12365925b37287e8e9",
+        "repo": "whisper-tools",
+        "rev": "deaa9885e19e58b6fa917dfbff913f4c077fe55f",
         "type": "github"
       },
       "original": {
+        "dir": "whispaste",
         "owner": "kanielrkirby",
-        "repo": "whispaste",
+        "repo": "whisper-tools",
         "type": "github"
       }
     },
