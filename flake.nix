@@ -3,23 +3,37 @@
 
   inputs = {
     nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
+    
+    # GitHub production inputs (default)
     dotfiles = {
-      # url = "github:kanielrkirby/dotfiles/main";
-      url = "path:/home/mx/dev/lab/dotfiles";
+      url = "github:kanielrkirby/dotfiles/main";
       flake = false;
     };
     opencode = {
-      # url = "github:anomalyco/opencode";
-      url = "path:/home/mx/dev/lab/opencode";
+      url = "github:anomalyco/opencode";
     };
     whispaste = {
-      # url = "github:kanielrkirby/whispaste";
-      url = "path:/home/mx/dev/lab/whisper-tools/whispaste";
+      url = "github:kanielrkirby/whispaste";
     };
     dmente = {
-      # url = "github:kanielrkirby/dmente";
+      url = "github:kanielrkirby/dmente";
+    };
+    
+    # Local development inputs
+    dotfiles-dev = {
+      url = "path:/home/mx/dev/lab/dotfiles";
+      flake = false;
+    };
+    opencode-dev = {
+      url = "path:/home/mx/dev/lab/opencode";
+    };
+    whispaste-dev = {
+      url = "path:/home/mx/dev/lab/whisper-tools/whispaste";
+    };
+    dmente-dev = {
       url = "path:/home/mx/dev/lab/dmente";
     };
+    
     st-src = {
       url = "git+https://git.suckless.org/st";
       flake = false;
@@ -34,6 +48,10 @@
       opencode,
       whispaste,
       dmente,
+      dotfiles-dev,
+      opencode-dev,
+      whispaste-dev,
+      dmente-dev,
       st-src,
       ...
     }:
