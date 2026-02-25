@@ -22,9 +22,27 @@ sudo nixos-rebuild test   # test first
 sudo nixos-rebuild switch # only after user confirms
 ```
 
+## Flake Input Structure
+
+The flake has **dual inputs** for development projects:
+- **GitHub inputs** (no suffix): `dotfiles`, `opencode`, `whispaste`, `dmente` - used for production/updates
+- **Local dev inputs** (`-dev` suffix): `dotfiles-dev`, `opencode-dev`, `whispaste-dev`, `dmente-dev` - used for local development
+
+The flake.nix is committed with **GitHub inputs as default** in the input declarations, but the actual package derivations use the **`-dev` versions** for local builds. This allows updating from GitHub without commenting/uncommenting.
+
+### Updating from GitHub
+
+To pull latest changes from a GitHub repository:
+
+```bash
+nix flake update dotfiles  # or opencode, whispaste, dmente
+```
+
+This updates the lockfile for the GitHub input without affecting your local development workflow.
+
 ## Updating Dotfiles
 
-The dotfiles flake input is configured to use a local path for development (`path:/home/mx/dev/lab/dotfiles`) but must be switched to GitHub URL for updates.
+The dotfiles are managed via dual inputs. Local development uses `dotfiles-dev`, while GitHub releases use `dotfiles`.
 
 ### Standard Deployment Flow
 
@@ -46,58 +64,39 @@ The dotfiles flake input is configured to use a local path for development (`pat
    git push
    ```
 
-4. **Switch flake.nix to GitHub URL** (uncomment GitHub, comment local path)
-   ```nix
-   dotfiles = {
-     url = "github:kanielrkirby/dotfiles/main";
-     # url = "path:/home/mx/dev/lab/dotfiles";
-     flake = false;
-   };
-   ```
-
-5. **Update flake input**
+4. **Update flake input**
    ```bash
+   cd /etc/nixos
    nix flake update dotfiles
    ```
 
-6. **Commit and push flake.lock**
+5. **Commit and push flake.lock**
    ```bash
    git add flake.lock
    git commit -m "chore: update dotfiles flake input"
    git push
    ```
 
-7. **Restore local path in flake.nix** (comment GitHub, uncomment local path)
-   ```nix
-   dotfiles = {
-     # url = "github:kanielrkirby/dotfiles/main";
-     url = "path:/home/mx/dev/lab/dotfiles";
-     flake = false;
-   };
-   ```
-
-8. **Rebuild NixOS**
+6. **Rebuild NixOS**
    ```bash
    sudo nixos-rebuild switch
    ```
 
-**Note**: The local path allows instant testing without commits. GitHub URL is only for official releases.
+**Note**: The `-dev` suffix inputs allow instant local testing without commits. GitHub inputs are automatically updated via `nix flake update`.
 
 ### Quick Deployment Flow (Single Command)
 
 When you need to deploy quickly without testing, use this one-liner that handles everything:
 
 ```bash
-cd /home/mx/dev/lab/dotfiles && git add .config/bspwm/panel.py && git commit -m "feat: description" && git push && cd /etc/nixos && sed -i 's|# url = "github:kanielrkirby/dotfiles/main";|url = "github:kanielrkirby/dotfiles/main";|; s|url = "path:/home/mx/dev/lab/dotfiles";|# url = "path:/home/mx/dev/lab/dotfiles";|' flake.nix && nix flake update dotfiles && git add flake.lock && git commit -m "chore: update dotfiles flake input" && git push && sed -i 's|url = "github:kanielrkirby/dotfiles/main";|# url = "github:kanielrkirby/dotfiles/main";|; s|# url = "path:/home/mx/dev/lab/dotfiles";|url = "path:/home/mx/dev/lab/dotfiles";|' flake.nix && rm /home/mx/.config/bspwm/panel.py && sudo nixos-rebuild switch
+cd /home/mx/dev/lab/dotfiles && git add .config/bspwm/panel.py && git commit -m "feat: description" && git push && cd /etc/nixos && nix flake update dotfiles && git add flake.lock && git commit -m "chore: update dotfiles flake input" && git push && rm /home/mx/.config/bspwm/panel.py && sudo nixos-rebuild switch
 ```
 
 **What it does:**
 1. Commits and pushes dotfiles changes
-2. Switches flake.nix to GitHub URL
-3. Updates flake input
-4. Commits and pushes flake.lock
-5. Restores local path in flake.nix
-6. Removes local file and rebuilds NixOS
+2. Updates flake input from GitHub
+3. Commits and pushes flake.lock
+4. Removes local file and rebuilds NixOS
 
 ## Editing Patched Projects (dwm, st, dwmblocks, etc.)
 
@@ -108,7 +107,6 @@ cd /home/mx/dev/lab/dotfiles && git add .config/bspwm/panel.py && git commit -m 
 5. `git diff > ../01-config.patch` (regenerate patch)
 6. `git checkout .` (reset submodule)
 7. `cd ~/dev/lab/dotfiles && git add -A && git commit && git push`
-8. Update `rev` in `flake.nix` to the new commit hash
-9. `nix flake update dotfiles`
-10. `sudo nixos-rebuild test`
-11. User confirms, then `sudo nixos-rebuild switch`
+8. `cd /etc/nixos && nix flake update dotfiles`
+9. `sudo nixos-rebuild test`
+10. User confirms, then `sudo nixos-rebuild switch`
