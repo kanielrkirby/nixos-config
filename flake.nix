@@ -414,6 +414,7 @@
             brightnessctl
             wireplumber
             mullvad-vpn
+            playerctl
             stow
             xclip
             wl-clipboard
