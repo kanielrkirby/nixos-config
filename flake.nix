@@ -427,6 +427,8 @@
             dunst
             libnotify
             openssh
+            feh
+            imagemagick
             uutils-coreutils-noprefix
             # uutils-findutils
             findutils
