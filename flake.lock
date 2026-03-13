@@ -245,11 +245,11 @@
         "nixpkgs": "nixpkgs_6"
       },
       "locked": {
-        "lastModified": 1773411076,
-        "narHash": "sha256-yJF8hvKcGyQJjrgGugibkbF9dtp8OuhsG25Bcaj0ZAQ=",
+        "lastModified": 1773411404,
+        "narHash": "sha256-IcSlG//B03Km9ngwxZAYDSn73ctkPM85/6WkPDsJ4vM=",
         "owner": "kanielrkirby",
         "repo": "rbwm",
-        "rev": "4e31af0b430d0c777bd64d124b0c43744f95ab84",
+        "rev": "9028db6a2d4b33b78e9025e713e1415e1f2c1d00",
         "type": "github"
       },
       "original": {
