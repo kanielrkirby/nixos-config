@@ -18,6 +18,9 @@
     dmente = {
       url = "github:kanielrkirby/dmente";
     };
+    rbwm = {
+      url = "github:kanielrkirby/rbwm";
+    };
     
     # Local development inputs
     dotfiles-dev = {
@@ -32,6 +35,9 @@
     };
     dmente-dev = {
       url = "path:/home/mx/dev/lab/dmente";
+    };
+    rbwm-dev = {
+      url = "path:/home/mx/dev/lab/rbwm";
     };
     
     st-src = {
@@ -48,10 +54,12 @@
       opencode,
       whispaste,
       dmente,
+      rbwm,
       dotfiles-dev,
       opencode-dev,
       whispaste-dev,
       dmente-dev,
+      rbwm-dev,
       st-src,
       ...
     }:
@@ -65,11 +73,11 @@
       _st = import ./derivations/st.nix { inherit pkgs dotfiles st-src; };
       _menu_custom = import ./derivations/menu_custom.nix { inherit pkgs; };
       _wifimenu = import ./derivations/wifimenu.nix { inherit pkgs; };
-      _rbwm = import ./derivations/rbwm.nix { inherit pkgs; };
       _comma = import ./derivations/comma.nix { inherit pkgs; };
       _battery_notify = import ./derivations/battery_notify.nix { inherit pkgs; };
 
       _dmente = dmente.packages.x86_64-linux.default;
+      _rbwm = rbwm.packages.x86_64-linux.default;
       # _opencode = opencode.packages.x86_64-linux.default.overrideAttrs (oldAttrs: {
       #   postPatch = (oldAttrs.postPatch or "") + ''
       #               substituteInPlace packages/opencode/src/session/prompt/anthropic.txt \

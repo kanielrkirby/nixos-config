@@ -145,6 +145,38 @@
     },
     "nixpkgs_6": {
       "locked": {
+        "lastModified": 1770841267,
+        "narHash": "sha256-9xejG0KoqsoKEGp2kVbXRlEYtFFcDTHjidiuX8hGO44=",
+        "owner": "NixOS",
+        "repo": "nixpkgs",
+        "rev": "ec7c70d12ce2fc37cb92aff673dcdca89d187bae",
+        "type": "github"
+      },
+      "original": {
+        "owner": "NixOS",
+        "ref": "nixos-unstable",
+        "repo": "nixpkgs",
+        "type": "github"
+      }
+    },
+    "nixpkgs_7": {
+      "locked": {
+        "lastModified": 1770841267,
+        "narHash": "sha256-9xejG0KoqsoKEGp2kVbXRlEYtFFcDTHjidiuX8hGO44=",
+        "owner": "NixOS",
+        "repo": "nixpkgs",
+        "rev": "ec7c70d12ce2fc37cb92aff673dcdca89d187bae",
+        "type": "github"
+      },
+      "original": {
+        "owner": "NixOS",
+        "ref": "nixos-unstable",
+        "repo": "nixpkgs",
+        "type": "github"
+      }
+    },
+    "nixpkgs_8": {
+      "locked": {
         "lastModified": 1768875095,
         "narHash": "sha256-dYP3DjiL7oIiiq3H65tGIXXIT1Waiadmv93JS0sS+8A=",
         "owner": "NixOS",
@@ -159,7 +191,7 @@
         "type": "github"
       }
     },
-    "nixpkgs_7": {
+    "nixpkgs_9": {
       "locked": {
         "lastModified": 1768875095,
         "narHash": "sha256-dYP3DjiL7oIiiq3H65tGIXXIT1Waiadmv93JS0sS+8A=",
@@ -208,6 +240,39 @@
         "type": "path"
       }
     },
+    "rbwm": {
+      "inputs": {
+        "nixpkgs": "nixpkgs_6"
+      },
+      "locked": {
+        "lastModified": 1773411076,
+        "narHash": "sha256-yJF8hvKcGyQJjrgGugibkbF9dtp8OuhsG25Bcaj0ZAQ=",
+        "owner": "kanielrkirby",
+        "repo": "rbwm",
+        "rev": "4e31af0b430d0c777bd64d124b0c43744f95ab84",
+        "type": "github"
+      },
+      "original": {
+        "owner": "kanielrkirby",
+        "repo": "rbwm",
+        "type": "github"
+      }
+    },
+    "rbwm-dev": {
+      "inputs": {
+        "nixpkgs": "nixpkgs_7"
+      },
+      "locked": {
+        "lastModified": 1773411080,
+        "narHash": "sha256-MvjwGxFmUKH+ptQwcMAFGFW6UIJUngb9kTN7Pzj9XGA=",
+        "path": "/home/mx/dev/lab/rbwm",
+        "type": "path"
+      },
+      "original": {
+        "path": "/home/mx/dev/lab/rbwm",
+        "type": "path"
+      }
+    },
     "root": {
       "inputs": {
         "dmente": "dmente",
@@ -217,6 +282,8 @@
         "nixpkgs": "nixpkgs_3",
         "opencode": "opencode",
         "opencode-dev": "opencode-dev",
+        "rbwm": "rbwm",
+        "rbwm-dev": "rbwm-dev",
         "st-src": "st-src",
         "whispaste": "whispaste",
         "whispaste-dev": "whispaste-dev"
@@ -240,7 +307,7 @@
     },
     "whispaste": {
       "inputs": {
-        "nixpkgs": "nixpkgs_6"
+        "nixpkgs": "nixpkgs_8"
       },
       "locked": {
         "dir": "whispaste",
@@ -260,7 +327,7 @@
     },
     "whispaste-dev": {
       "inputs": {
-        "nixpkgs": "nixpkgs_7"
+        "nixpkgs": "nixpkgs_9"
       },
       "locked": {
         "lastModified": 1772036594,
