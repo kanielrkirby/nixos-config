@@ -53,8 +53,8 @@
     "dotfiles-dev": {
       "flake": false,
       "locked": {
-        "lastModified": 1778857226,
-        "narHash": "sha256-VL6xH6Zgg6J/QNNxpR5D/sF23K4XIgdwwqWpaugJ/1Q=",
+        "lastModified": 1781273152,
+        "narHash": "sha256-TcIXw8fIjkM+K1FvWrBM9hIbAonyBbgNjKhrgQiQt9E=",
         "path": "/home/mx/dev/lab/dotfiles",
         "type": "path"
       },
