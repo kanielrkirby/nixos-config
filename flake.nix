@@ -87,6 +87,7 @@
       _dmente = dmente-dev.packages.x86_64-linux.default;
       _rbwm = rbwm-dev.packages.x86_64-linux.default;
       _quay = quay-dev.packages.x86_64-linux.default;
+      _archon = import ./derivations/archon.nix { inherit pkgs; };
       # _opencode = opencode-dev.packages.x86_64-linux.default.overrideAttrs (oldAttrs: {
       #   postPatch = (oldAttrs.postPatch or "") + ''
       #               substituteInPlace packages/opencode/src/session/prompt/anthropic.txt \
@@ -188,6 +189,9 @@
             HandleLidSwitchExternalPower = "lock";
           };
 
+          # Handles providing standard things like /bin/bash
+          services.envfs.enable = true;
+
           fileSystems = {
             "/" = {
               device = "zpool/root";
@@ -242,6 +246,17 @@
           '';
 
           hardware.bluetooth.enable = true;
+
+          services.avahi = {
+            enable = true;
+            nssmdns4 = true;
+            openFirewall = true;
+            publish = {
+              enable = true;
+              userServices = true;
+              addresses = true;
+            };
+          };
 
           # services.dnsmasq = {
           #   enable = true;
@@ -411,8 +426,11 @@
             helix
             vim
             gh
+            bun
+            nodejs_22
             clang
             lazysql
+            _archon
 
             vscode-langservers-extracted
             bash-language-server
@@ -422,6 +440,7 @@
             python313Packages.black
             python313Packages.libxml2
 
+            mise
             tmux
             bash-completion
             tealdeer
@@ -460,6 +479,9 @@
             wtype
             ydotool
             libnotify
+
+            mkcert
+            jq
 
             _opencode
 
@@ -538,6 +560,9 @@
         # Git
         git
         gh
+        bun
+        nodejs_22
+        _archon
 
         # Editors
         helix
