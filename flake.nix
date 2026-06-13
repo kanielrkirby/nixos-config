@@ -84,10 +84,10 @@
       _comma = import ./derivations/comma.nix { inherit pkgs; };
       _battery_notify = import ./derivations/battery_notify.nix { inherit pkgs; };
 
-      _dmente = dmente.packages.x86_64-linux.default;
-      _rbwm = rbwm.packages.x86_64-linux.default;
-      # _opencode = opencode.packages.x86_64-linux.default.overrideAttrs (oldAttrs: {
+      _dmente = dmente-dev.packages.x86_64-linux.default;
+      _rbwm = rbwm-dev.packages.x86_64-linux.default;
       _quay = quay-dev.packages.x86_64-linux.default;
+      # _opencode = opencode-dev.packages.x86_64-linux.default.overrideAttrs (oldAttrs: {
       #   postPatch = (oldAttrs.postPatch or "") + ''
       #               substituteInPlace packages/opencode/src/session/prompt/anthropic.txt \
       #                 --replace-fail "You are OpenCode, the best coding agent on the planet." \
@@ -98,8 +98,8 @@
       #     - Use the TodoWrite tool to plan the task if required"
       #   '';
       # });
-      _opencode = opencode.packages.x86_64-linux.default;
-      _whispaste = whispaste.defaultPackage.x86_64-linux;
+      _opencode = opencode-dev.packages.x86_64-linux.default;
+      _whispaste = whispaste-dev.defaultPackage.x86_64-linux;
 
       mt7925Fixes = pkgs.fetchFromGitHub {
         owner = "zbowling";
@@ -470,7 +470,7 @@
 
           # Deploy dotfiles from git repo using activation script
           system.activationScripts.dotfiles = /* bash */ ''
-            src="${dotfiles}"
+            src="${dotfiles-dev}"
             dst="/home/mx"
             
             # Get old dotfiles source from previous generation
