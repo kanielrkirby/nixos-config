@@ -21,6 +21,9 @@
     rbwm = {
       url = "github:kanielrkirby/rbwm";
     };
+    quay = {
+      url = "github:kanielrkirby/quay";
+    };
     
     # Local development inputs
     dotfiles-dev = {
@@ -39,6 +42,9 @@
     rbwm-dev = {
       url = "path:/home/mx/dev/lab/rbwm";
     };
+    quay-dev = {
+      url = "path:/home/mx/dev/lab/quay";
+    };
     
     st-src = {
       url = "git+https://git.suckless.org/st";
@@ -55,11 +61,13 @@
       whispaste,
       dmente,
       rbwm,
+      quay,
       dotfiles-dev,
       opencode-dev,
       whispaste-dev,
       dmente-dev,
       rbwm-dev,
+      quay-dev,
       st-src,
       ...
     }:
@@ -79,6 +87,7 @@
       _dmente = dmente.packages.x86_64-linux.default;
       _rbwm = rbwm.packages.x86_64-linux.default;
       # _opencode = opencode.packages.x86_64-linux.default.overrideAttrs (oldAttrs: {
+      _quay = quay-dev.packages.x86_64-linux.default;
       #   postPatch = (oldAttrs.postPatch or "") + ''
       #               substituteInPlace packages/opencode/src/session/prompt/anthropic.txt \
       #                 --replace-fail "You are OpenCode, the best coding agent on the planet." \
@@ -373,6 +382,7 @@
             _wifimenu
             _dmente
             _rbwm
+            _quay
             _comma
             _whispaste
             _battery_notify
