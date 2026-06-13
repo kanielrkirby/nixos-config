@@ -78,7 +78,7 @@
         config.allowUnfree = true;
       };
 
-      _st = import ./derivations/st.nix { inherit pkgs dotfiles st-src; };
+      _st = import ./derivations/st.nix { inherit pkgs; dotfiles = dotfiles-dev; inherit st-src; };
       _menu_custom = import ./derivations/menu_custom.nix { inherit pkgs; };
       _wifimenu = import ./derivations/wifimenu.nix { inherit pkgs; };
       _comma = import ./derivations/comma.nix { inherit pkgs; };
