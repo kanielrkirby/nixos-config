@@ -36,11 +36,11 @@
     "dotfiles": {
       "flake": false,
       "locked": {
-        "lastModified": 1781275705,
-        "narHash": "sha256-USqT/rSsSth5K2TY8uYDM30PoqCkCD/kqLflYKr0msc=",
+        "lastModified": 1781629127,
+        "narHash": "sha256-JlGyeKsKBi1qnN3MOkOLpMAJguFH/Rz3KVqRWzYYZ8M=",
         "owner": "kanielrkirby",
         "repo": "dotfiles",
-        "rev": "9a5caab683d5c1516d800e3374aebdc087ae9e8d",
+        "rev": "49177710a4cc3dc3fdc7ba71a83e5545d35c4ff3",
         "type": "github"
       },
       "original": {

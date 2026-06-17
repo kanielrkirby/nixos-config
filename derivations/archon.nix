@@ -2,7 +2,12 @@
 
 let
   version = "0.4.1";
-  src = /nix/store/pd7n0h373fn35x5jp9wpv6mbwz3bwdlv-archon-lock;
+  src = pkgs.fetchFromGitHub {
+    owner = "coleam00";
+    repo = "Archon";
+    rev = "v${version}";
+    hash = "sha256-pSuCiTB9APMczkFfx+iypcQj83RgYRpSLhib3V2b4k4=";
+  };
 in
 pkgs.stdenvNoCC.mkDerivation {
   pname = "archon";

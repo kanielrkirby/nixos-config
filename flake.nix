@@ -83,6 +83,7 @@
       _wifimenu = import ./derivations/wifimenu.nix { inherit pkgs; };
       _comma = import ./derivations/comma.nix { inherit pkgs; };
       _battery_notify = import ./derivations/battery_notify.nix { inherit pkgs; };
+      _opencode_with_claude = import ./derivations/opencode_with_claude.nix { inherit pkgs; };
 
       _dmente = dmente-dev.packages.x86_64-linux.default;
       _rbwm = rbwm-dev.packages.x86_64-linux.default;
@@ -431,6 +432,7 @@
             clang
             lazysql
             _archon
+            _opencode_with_claude
 
             vscode-langservers-extracted
             bash-language-server
@@ -484,6 +486,7 @@
             jq
 
             _opencode
+            claude-code
 
             # Wine for running Windows apps (e.g. Jagex Launcher)
             wineWowPackages.staging
