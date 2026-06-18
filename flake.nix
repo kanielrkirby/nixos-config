@@ -24,6 +24,10 @@
     quay = {
       url = "github:kanielrkirby/quay";
     };
+    dome-cli = {
+      url = "git+https://github.com/domesoftware/dome-cli?ref=main";
+      flake = false;
+    };
     
     # Local development inputs
     dotfiles-dev = {
@@ -62,6 +66,7 @@
       dmente,
       rbwm,
       quay,
+      dome-cli,
       dotfiles-dev,
       opencode-dev,
       whispaste-dev,
@@ -89,6 +94,10 @@
       _rbwm = rbwm-dev.packages.x86_64-linux.default;
       _quay = quay-dev.packages.x86_64-linux.default;
       _archon = import ./derivations/archon.nix { inherit pkgs; };
+      _dome_cli = import ./derivations/dome-cli.nix {
+        inherit pkgs;
+        src = dome-cli;
+      };
       # _opencode = opencode-dev.packages.x86_64-linux.default.overrideAttrs (oldAttrs: {
       #   postPatch = (oldAttrs.postPatch or "") + ''
       #               substituteInPlace packages/opencode/src/session/prompt/anthropic.txt \
@@ -432,6 +441,7 @@
             clang
             lazysql
             _archon
+            _dome_cli
             _opencode_with_claude
 
             vscode-langservers-extracted
@@ -566,6 +576,7 @@
         bun
         nodejs_22
         _archon
+        _dome_cli
 
         # Editors
         helix
@@ -597,6 +608,8 @@
         name = "ubuntu-tools";
         paths = ubuntuPackages;
       };
+
+      packages.x86_64-linux.dome-cli = _dome_cli;
 
       # Script to copy dotfiles (run once: nix run .#ubuntu-dotfiles)
       packages.x86_64-linux.ubuntu-dotfiles = pkgs.writeShellScriptBin "ubuntu-dotfiles" ''

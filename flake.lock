@@ -33,6 +33,23 @@
         "type": "path"
       }
     },
+    "dome-cli": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1781732044,
+        "narHash": "sha256-tC4sHoMBFznsSqzl6pTNc7+EShwM4MxPIf6Ys8rqyXY=",
+        "ref": "main",
+        "rev": "aa32a12a96acc043f89add61bea0b839892774e4",
+        "revCount": 29,
+        "type": "git",
+        "url": "https://github.com/domesoftware/dome-cli"
+      },
+      "original": {
+        "ref": "main",
+        "type": "git",
+        "url": "https://github.com/domesoftware/dome-cli"
+      }
+    },
     "dotfiles": {
       "flake": false,
       "locked": {
@@ -342,6 +359,7 @@
       "inputs": {
         "dmente": "dmente",
         "dmente-dev": "dmente-dev",
+        "dome-cli": "dome-cli",
         "dotfiles": "dotfiles",
         "dotfiles-dev": "dotfiles-dev",
         "nixpkgs": "nixpkgs_3",
